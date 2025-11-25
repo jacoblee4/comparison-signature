@@ -1,81 +1,78 @@
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching credit limits...
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building requested limits object...
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Is change request = false
-
-11-25-2025 15:40:50
-Warning	x_banun_bunow_si_0	SIGNATURE HELPER HTML: No job function description - will show requested limits only
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job title = Administrative Assistant
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job function description = null
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job code record retrieved
-
-11-25-2025 15:40:50
-Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Stack: at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:83 (executeRule)
-at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:118
-
-11-25-2025 15:40:50
-Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Exception: Cannot find function convertAttachmentToPDF in object [object PDFGenerationAPI].
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Converting HTML to PDF...
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Ended ==========
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Temp HTML created: efe7717f1bd93e14f5b0cbfa234bcb7d
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Largest value = 234 in field disbursement_ach
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent job_code value = c79054071b474a10cd80ffbe034bcb74
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: HTML content generated, length = 3460
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Finding largest requested value...
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: HTML content built successfully, length = 3460
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Non-credit limits found
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building HTML content...
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching non-credit limits...
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent sys_id = 03d7757b1bd93e14f5b0cbfa234bcb8b
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Started ==========
-
-11-25-2025 15:40:50
+11-25-2025 15:44:40
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Credit limits found
 
-11-25-2025 15:40:50
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching non-credit limits...
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job title = Administrative Assistant
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job function description = null
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job code record retrieved
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching credit limits...
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building requested limits object...
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Is change request = false
+
+11-25-2025 15:44:40
+Warning	x_banun_bunow_si_0	SIGNATURE HELPER HTML: No job function description - will show requested limits only
+
+11-25-2025 15:44:40
+Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Stack: at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:63 (executeRule)
+at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:99
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: HTML content built successfully, length = 3458
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Non-credit limits found
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent number = SIGR0001602
+
+11-25-2025 15:44:40
+Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Exception: undefined is not a function.
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building HTML content...
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent sys_id = e6b87db31b1d3e14f5b0cbfa234bcb80
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Started ==========
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Creating PDF using PDFContentPusher...
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Largest value = 23 in field disbursement_ach
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent job_code value = c79054071b474a10cd80ffbe034bcb74
+
+11-25-2025 15:44:40
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: _buildHTMLContent started
 
-11-25-2025 15:40:50
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Ended ==========
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: HTML content generated, length = 3458
+
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Finding largest requested value...
+
+11-25-2025 15:44:40
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Getting job code...
 
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Generating PDF for SIGR0001601
-
-11-25-2025 15:40:50
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent number = SIGR0001601
+11-25-2025 15:44:40
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Generating PDF for SIGR0001602
