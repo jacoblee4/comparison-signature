@@ -264,14 +264,27 @@ _buildHTMLContent: function(parent) {
     html += '</style>';
     html += '</head><body>';
 
-    // Header information
-    html += '<h2>Authority Limits ' + (hasJobFunction ? 'Comparison ' : '') + 'Report</h2>';
-    html += '<div class="info">';
-    html += '<span class="info-label">Request Number:</span> ' + parent.number + '<br/>';
-    html += '<span class="info-label">Employee:</span> ' + parent.employee.getDisplayValue() + '<br/>';
-    html += '<span class="info-label">Request Type:</span> ' + parent.request_type.getDisplayValue() + '<br/>';
-    html += '<span class="info-label">Generated:</span> ' + new GlideDateTime().getDisplayValue() + '<br/>';
-    html += '</div>';
+// Header information - WITH NULL CHECKS
+html += '<h2>Authority Limits ' + (hasJobFunction ? 'Comparison ' : '') + 'Report</h2>';
+html += '<div class="info">';
+html += '<span class="info-label">Request Number:</span> ' + (parent.number || 'N/A') + '<br/>';
+
+// FIXED: Add null check for employee
+var employeeName = 'N/A';
+if (parent.employee && parent.employee.getDisplayValue) {
+    employeeName = parent.employee.getDisplayValue() || 'N/A';
+}
+html += '<span class="info-label">Employee:</span> ' + employeeName + '<br/>';
+
+// FIXED: Add null check for request_type
+var requestType = 'N/A';
+if (parent.request_type && parent.request_type.getDisplayValue) {
+    requestType = parent.request_type.getDisplayValue() || 'N/A';
+}
+html += '<span class="info-label">Request Type:</span> ' + requestType + '<br/>';
+
+html += '<span class="info-label">Generated:</span> ' + new GlideDateTime().getDisplayValue() + '<br/>';
+html += '</div>';
 
     if (hasJobFunction) {
         html += '<h3>Job Function: ' + jobFunctionDescription + '</h3>';
