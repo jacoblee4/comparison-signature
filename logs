@@ -1,78 +1,276 @@
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Credit limits found
+[0:00:07.067] Script completed in scope x_banun_bunow_si_0: script
+Script execution history and recovery available here
+Operation	Table	Row Count
+insert	sys_trigger	6
+insert	sys_attachment_doc	4
+insert	sys_pdf_generation_status	3
+update	sys_pdf_generation_status	3
+insert	sys_journal_field	2
+...and another 9 affected table(s)
+View full summary here
+x_banun_bunow_si_0: ========================================
+x_banun_bunow_si_0: PDF API TEST: Starting comprehensive test
+x_banun_bunow_si_0: ========================================
+x_banun_bunow_si_0: PDF API TEST: Test record found: SIGR0001602
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: _buildHTMLContent started
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Parent sys_id = e6b87db31b1d3e14f5b0cbfa234bcb80
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Parent number = SIGR0001602
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Getting job code...
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Parent job_code value = c79054071b474a10cd80ffbe034bcb74
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Job code record retrieved
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Job function description = null
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: No job function description - will show requested limits only
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Building requested limits object...
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Job title = Administrative Assistant
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Is change request = false
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Fetching credit limits...
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Credit limits found
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Fetching non-credit limits...
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Non-credit limits found
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Finding largest requested value...
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Largest value = 23 in field disbursement_ach
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: Building HTML content...
+x_banun_bunow_si_0 (SignatureHelper): SIGNATURE HELPER HTML: HTML content built successfully, length = 3458
+x_banun_bunow_si_0: PDF API TEST: HTML content built successfully, length = 3458
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: Testing Method 1 - convertToPDF (4 params)
+x_banun_bunow_si_0: ========================================
+552a793b1b1d3e14f5b0cbfa234bcbda: Preprocessing of HTML to PDF conversion started.
+552a793b1b1d3e14f5b0cbfa234bcbda: Preprocessing of HTML to PDF conversion completed taking around time_ms=319
+552a793b1b1d3e14f5b0cbfa234bcbda: Processing of HTML to PDF conversion started.
+Document Shared Service is not accessible, healthcheck on it failed: Unavailable Clients: : 	com.snc.documents.PDFServiceClientManager.getClient(PDFServiceClientManager.java:262)
+	com.snc.documents.PDFRequestHandlerFactory.acquireClient(PDFRequestHandlerFactory.java:26)
+	com.snc.documents.PDFRequestHandlerFactory.isSharedServiceAvailable(PDFRequestHandlerFactory.java:54)
+	com.snc.documents.PDFRequestHandlerFactory.getPDFRequestHandler(PDFRequestHandlerFactory.java:37)
+	com.snc.documents.HtmlToPdfConversionController.process(HtmlToPdfConversionController.java:316)
+	com.snc.pdfgenerator.PDFGenerationAPI.convertToPDF(PDFGenerationAPI.java:200)
+	com.snc.pdfgenerator.PDFGenerationAPI.convertToPDF(PDFGenerationAPI.java:184)
+	com.snc.pdfgenerator.PDFGenerationAPI.jsFunction_convertToPDF(PDFGenerationAPI.java:221)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	org.mozilla.javascript.MemberBox.invoke(MemberBox.java:232)
+	org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:692)
+	org.mozilla.javascript.FunctionObject.call(FunctionObject.java:621)
+	org.mozilla.javascript.ScriptRuntime.doCall(ScriptRuntime.java:3078)
+	org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1721)
+	org.mozilla.javascript.Interpreter.interpret(Interpreter.java:907)
+	org.mozilla.javascript.InterpretedFunction.lambda$call$0(InterpretedFunction.java:137)
+	com.glide.caller.gen.null_null_script.call(Unknown Source)
+	com.glide.script.ScriptCaller.call(ScriptCaller.java:22)
+	org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:135)
+	org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:720)
+	org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:4501)
+	org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:151)
+	com.glide.script.ScriptCompiler.executeAndPublishMetric(ScriptCompiler.java:78)
+	com.glide.script.ScriptEvaluator.execute(ScriptEvaluator.java:468)
+	com.glide.script.ScriptEvaluator.evaluate(ScriptEvaluator.java:235)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:384)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:268)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:245)
+	com.glide.processors.ScriptProcessor.evaluateScript0(ScriptProcessor.java:406)
+	com.glide.processors.ScriptProcessor.lambda$evaluateScriptWithRecordingOption$0(ScriptProcessor.java:389)
+	com.glide.rollback.recording.RollbackRecorder.execute(RollbackRecorder.java:67)
+	com.glide.processors.ScriptProcessor.evaluateScriptWithRecordingOption(ScriptProcessor.java:389)
+	com.glide.processors.ScriptProcessor.evaluateScript(ScriptProcessor.java:369)
+	com.glide.processors.ScriptProcessor.runScript(ScriptProcessor.java:267)
+	com.glide.processors.ScriptProcessor.process(ScriptProcessor.java:225)
+	com.glide.processors.AProcessor.runProcessor(AProcessor.java:890)
+	com.glide.processors.AProcessor.processTransaction(AProcessor.java:345)
+	com.glide.processors.ProcessorRegistry.process0(ProcessorRegistry.java:187)
+	com.glide.processors.ProcessorRegistry.process(ProcessorRegistry.java:175)
+	com.glide.ui.GlideServletTransaction.process(GlideServletTransaction.java:58)
+	com.glide.sys.Transaction.run(Transaction.java:3004)
+	com.glide.ui.HTTPTransaction.run(HTTPTransaction.java:34)
+	java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	java.base/java.lang.Thread.run(Thread.java:841)
 
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching non-credit limits...
+552a793b1b1d3e14f5b0cbfa234bcbda: Using custom logic. The exact version to be used is VERSION_1
+552a793b1b1d3e14f5b0cbfa234bcbda: HTML to PDF conversion completed taking time_ms=4472
+com.snc.pdfgenerator.FontCacheHandler - Flushed the FontCache from the heap memory which took time_ms=0
+552a793b1b1d3e14f5b0cbfa234bcbda: Processing of HTML to PDF conversion completed taking around time_ms=4512
+552a793b1b1d3e14f5b0cbfa234bcbda: Postprocessing of HTML to PDF conversion started.
+record-watcher asynchronous tracking complete - time: 4 ms. Executed responders: 1 
+[CacheFlushLog] event=x_banun_bunow_si_0_signature_request, count=1, ms=0: Flushing catalog x_banun_bunow_si_0_signature_request
+record-watcher synchronous tracking complete - time: 1 ms. Executed responders: 1 
+record-watcher asynchronous tracking complete - time: 9 ms. Executed responders: 2 
+Slow business rule 'Track New Attachments' on sys_attachment:<span class = "session-log-bold-text"> TEST_Method1_SIGR0001602.pdf.pdf</span>, time was: 0:00:00.259
+record-watcher synchronous tracking complete - time: 0 ms. Executed responders: 1 
+Slow business rule 'Update parent record' on sys_attachment:<span class = "session-log-bold-text"> TEST_Method1_SIGR0001602.pdf.pdf</span>, time was: 0:00:00.126
+record-watcher asynchronous tracking complete - time: 7 ms. Executed responders: 2 
+record-watcher asynchronous tracking complete - time: 3 ms. Executed responders: 1 
+552a793b1b1d3e14f5b0cbfa234bcbda: Postprocessing of HTML to PDF conversion completed taking around time_ms=590
+Request : 552a793b1b1d3e14f5b0cbfa234bcbda succeeded with 'Conversion is successful.'
+x_banun_bunow_si_0: PDF API TEST Method 1: Result type = object
+x_banun_bunow_si_0: PDF API TEST Method 1: Result = {"attachment_id":"222a793b1b1d3e14f5b0cbfa234bcbdd","message":"Conversion is successful.","request_id":"552a793b1b1d3e14f5b0cbfa234bcbda","status":"success"}
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: Testing Method 2 - convertToPDFWithHeaderFooter
+x_banun_bunow_si_0: ========================================
+Security restricted: Execute operation on API 'PDFGenerationAPI.convertToPDFWithHeaderFooter' from scope 'BUNow Signature Authority' was granted and added to 'BUNow Signature Authority' cross scope privileges
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Preprocessing of HTML to PDF conversion started.
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Preprocessing of HTML to PDF conversion completed taking around time_ms=5
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Processing of HTML to PDF conversion started.
+Document Shared Service is not accessible, healthcheck on it failed: Unavailable Clients: : 	com.snc.documents.PDFServiceClientManager.getClient(PDFServiceClientManager.java:262)
+	com.snc.documents.PDFRequestHandlerFactory.acquireClient(PDFRequestHandlerFactory.java:26)
+	com.snc.documents.PDFRequestHandlerFactory.isSharedServiceAvailable(PDFRequestHandlerFactory.java:54)
+	com.snc.documents.PDFRequestHandlerFactory.getPDFRequestHandler(PDFRequestHandlerFactory.java:37)
+	com.snc.documents.HtmlToPdfConversionController.process(HtmlToPdfConversionController.java:316)
+	com.snc.pdfgenerator.PDFGenerationAPI.convertToPDF(PDFGenerationAPI.java:200)
+	com.snc.pdfgenerator.PDFGenerationAPI.convertToPDF(PDFGenerationAPI.java:184)
+	com.snc.pdfgenerator.PDFGenerationAPI.jsFunction_convertToPDFWithHeaderFooter(PDFGenerationAPI.java:215)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	org.mozilla.javascript.MemberBox.invoke(MemberBox.java:232)
+	org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:692)
+	org.mozilla.javascript.FunctionObject.call(FunctionObject.java:621)
+	org.mozilla.javascript.ScriptRuntime.doCall(ScriptRuntime.java:3078)
+	org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1721)
+	org.mozilla.javascript.Interpreter.interpret(Interpreter.java:907)
+	org.mozilla.javascript.InterpretedFunction.lambda$call$0(InterpretedFunction.java:137)
+	com.glide.caller.gen.null_null_script.call(Unknown Source)
+	com.glide.script.ScriptCaller.call(ScriptCaller.java:22)
+	org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:135)
+	org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:720)
+	org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:4501)
+	org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:151)
+	com.glide.script.ScriptCompiler.executeAndPublishMetric(ScriptCompiler.java:78)
+	com.glide.script.ScriptEvaluator.execute(ScriptEvaluator.java:468)
+	com.glide.script.ScriptEvaluator.evaluate(ScriptEvaluator.java:235)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:384)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:268)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:245)
+	com.glide.processors.ScriptProcessor.evaluateScript0(ScriptProcessor.java:406)
+	com.glide.processors.ScriptProcessor.lambda$evaluateScriptWithRecordingOption$0(ScriptProcessor.java:389)
+	com.glide.rollback.recording.RollbackRecorder.execute(RollbackRecorder.java:67)
+	com.glide.processors.ScriptProcessor.evaluateScriptWithRecordingOption(ScriptProcessor.java:389)
+	com.glide.processors.ScriptProcessor.evaluateScript(ScriptProcessor.java:369)
+	com.glide.processors.ScriptProcessor.runScript(ScriptProcessor.java:267)
+	com.glide.processors.ScriptProcessor.process(ScriptProcessor.java:225)
+	com.glide.processors.AProcessor.runProcessor(AProcessor.java:890)
+	com.glide.processors.AProcessor.processTransaction(AProcessor.java:345)
+	com.glide.processors.ProcessorRegistry.process0(ProcessorRegistry.java:187)
+	com.glide.processors.ProcessorRegistry.process(ProcessorRegistry.java:175)
+	com.glide.ui.GlideServletTransaction.process(GlideServletTransaction.java:58)
+	com.glide.sys.Transaction.run(Transaction.java:3004)
+	com.glide.ui.HTTPTransaction.run(HTTPTransaction.java:34)
+	java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	java.base/java.lang.Thread.run(Thread.java:841)
 
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job title = Administrative Assistant
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job function description = null
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job code record retrieved
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching credit limits...
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building requested limits object...
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Is change request = false
-
-11-25-2025 15:44:40
-Warning	x_banun_bunow_si_0	SIGNATURE HELPER HTML: No job function description - will show requested limits only
-
-11-25-2025 15:44:40
-Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Stack: at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:63 (executeRule)
-at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:99
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: HTML content built successfully, length = 3458
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Non-credit limits found
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent number = SIGR0001602
-
-11-25-2025 15:44:40
-Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Exception: undefined is not a function.
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building HTML content...
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent sys_id = e6b87db31b1d3e14f5b0cbfa234bcb80
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Started ==========
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Creating PDF using PDFContentPusher...
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Largest value = 23 in field disbursement_ach
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent job_code value = c79054071b474a10cd80ffbe034bcb74
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: _buildHTMLContent started
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Ended ==========
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: HTML content generated, length = 3458
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Finding largest requested value...
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Getting job code...
-
-11-25-2025 15:44:40
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Generating PDF for SIGR0001602
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Using custom logic. The exact version to be used is VERSION_1
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: HTML to PDF conversion completed taking time_ms=725
+com.snc.pdfgenerator.FontCacheHandler - Flushed the FontCache from the heap memory which took time_ms=0
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Processing of HTML to PDF conversion completed taking around time_ms=731
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Postprocessing of HTML to PDF conversion started.
+record-watcher asynchronous tracking complete - time: 3 ms. Executed responders: 1 
+record-watcher synchronous tracking complete - time: 0 ms. Executed responders: 1 
+record-watcher asynchronous tracking complete - time: 9 ms. Executed responders: 2 
+Slow business rule 'Track New Attachments' on sys_attachment:<span class = "session-log-bold-text"> TEST_Method2_SIGR0001602.pdf.pdf</span>, time was: 0:00:00.149
+record-watcher synchronous tracking complete - time: 1 ms. Executed responders: 1 
+record-watcher asynchronous tracking complete - time: 8 ms. Executed responders: 2 
+record-watcher asynchronous tracking complete - time: 3 ms. Executed responders: 1 
+ea2af93b1b1d3e14f5b0cbfa234bcbb0: Postprocessing of HTML to PDF conversion completed taking around time_ms=281
+Request : ea2af93b1b1d3e14f5b0cbfa234bcbb0 succeeded with 'Conversion is successful.'
+x_banun_bunow_si_0: PDF API TEST Method 2: Result type = object
+x_banun_bunow_si_0: PDF API TEST Method 2: Result = {"attachment_id":"7e2af93b1b1d3e14f5b0cbfa234bcbca","message":"Conversion is successful.","request_id":"ea2af93b1b1d3e14f5b0cbfa234bcbb0","status":"success"}
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: Testing Method 3 - convertToPDF with documentConfiguration
+x_banun_bunow_si_0: ========================================
+f62a3d3b1b1d3e14f5b0cbfa234bcb00: Preprocessing of HTML to PDF conversion started.
+PDFGenerator: f62a3d3b1b1d3e14f5b0cbfa234bcb00: Given PDF Generation Font Family record with sys id - null does not exist or there are no Font Families attached to the record.
+	com.snc.documents.HtmlToPdfConversionController.validate(HtmlToPdfConversionController.java:255)
+	com.snc.documents.HtmlToPdfConversionController.preProcess(HtmlToPdfConversionController.java:275)
+	com.snc.documents.HtmlToPdfConversionController.process(HtmlToPdfConversionController.java:312)
+	com.snc.pdfgenerator.PDFGenerationAPI.convertToPDF(PDFGenerationAPI.java:200)
+	com.snc.pdfgenerator.PDFGenerationAPI.convertToPDF(PDFGenerationAPI.java:184)
+	com.snc.pdfgenerator.PDFGenerationAPI.jsFunction_convertToPDF(PDFGenerationAPI.java:221)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	org.mozilla.javascript.MemberBox.invoke(MemberBox.java:232)
+	org.mozilla.javascript.FunctionObject.doInvoke(FunctionObject.java:692)
+	org.mozilla.javascript.FunctionObject.call(FunctionObject.java:621)
+	org.mozilla.javascript.ScriptRuntime.doCall(ScriptRuntime.java:3078)
+	org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1721)
+	org.mozilla.javascript.Interpreter.interpret(Interpreter.java:907)
+	org.mozilla.javascript.InterpretedFunction.lambda$call$0(InterpretedFunction.java:137)
+	com.glide.caller.gen.null_null_script.call(Unknown Source)
+	com.glide.script.ScriptCaller.call(ScriptCaller.java:22)
+	org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:135)
+	org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:720)
+	org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:4501)
+	org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:151)
+	com.glide.script.ScriptCompiler.executeAndPublishMetric(ScriptCompiler.java:78)
+	com.glide.script.ScriptEvaluator.execute(ScriptEvaluator.java:468)
+	com.glide.script.ScriptEvaluator.evaluate(ScriptEvaluator.java:235)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:384)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:268)
+	com.glide.script.fencing.GlideScopedEvaluator.evaluateScript(GlideScopedEvaluator.java:245)
+	com.glide.processors.ScriptProcessor.evaluateScript0(ScriptProcessor.java:406)
+	com.glide.processors.ScriptProcessor.lambda$evaluateScriptWithRecordingOption$0(ScriptProcessor.java:389)
+	com.glide.rollback.recording.RollbackRecorder.execute(RollbackRecorder.java:67)
+	com.glide.processors.ScriptProcessor.evaluateScriptWithRecordingOption(ScriptProcessor.java:389)
+	com.glide.processors.ScriptProcessor.evaluateScript(ScriptProcessor.java:369)
+	com.glide.processors.ScriptProcessor.runScript(ScriptProcessor.java:267)
+	com.glide.processors.ScriptProcessor.process(ScriptProcessor.java:225)
+	com.glide.processors.AProcessor.runProcessor(AProcessor.java:890)
+	com.glide.processors.AProcessor.processTransaction(AProcessor.java:345)
+	com.glide.processors.ProcessorRegistry.process0(ProcessorRegistry.java:187)
+	com.glide.processors.ProcessorRegistry.process(ProcessorRegistry.java:175)
+	com.glide.ui.GlideServletTransaction.process(GlideServletTransaction.java:58)
+	com.glide.sys.Transaction.run(Transaction.java:3004)
+	com.glide.ui.HTTPTransaction.run(HTTPTransaction.java:34)
+	java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	java.base/java.lang.Thread.run(Thread.java:841)
+: no thrown error
+Request : f62a3d3b1b1d3e14f5b0cbfa234bcb00 failed with ' Conversion failed. f62a3d3b1b1d3e14f5b0cbfa234bcb00: Given PDF Generation Font Family record with sys id - null does not exist or there are no Font Families attached to the record.': no thrown error
+x_banun_bunow_si_0: PDF API TEST Method 3: Result type = object
+x_banun_bunow_si_0: PDF API TEST Method 3: Result = {"message":" Conversion failed. f62a3d3b1b1d3e14f5b0cbfa234bcb00: Given PDF Generation Font Family record with sys id - null does not exist or there are no Font Families attached to the record.","request_id":"f62a3d3b1b1d3e14f5b0cbfa234bcb00","status":"failure"}
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: Testing Method 4 - PDFContentPusher
+x_banun_bunow_si_0: ========================================
+x_banun_bunow_si_0: PDF API TEST Method 4 EXCEPTION: undefined is not a function.
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: Testing Method 5 - Document Generation API
+x_banun_bunow_si_0: ========================================
+x_banun_bunow_si_0: PDF API TEST Method 5: SKIPPED (no template sys_id provided)
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: SUMMARY OF ALL METHODS
+x_banun_bunow_si_0: ========================================
+x_banun_bunow_si_0: Method: convertToPDF (4 params)
+x_banun_bunow_si_0:   Status: SUCCESS
+x_banun_bunow_si_0:   Result: {"attachment_id":"222a793b1b1d3e14f5b0cbfa234bcbdd","message":"Conversion is successful.","request_id":"552a793b1b1d3e14f5b0cbfa234bcbda","status":"success"}
+x_banun_bunow_si_0: ---
+x_banun_bunow_si_0: Method: convertToPDFWithHeaderFooter
+x_banun_bunow_si_0:   Status: SUCCESS
+x_banun_bunow_si_0:   Result: {"attachment_id":"7e2af93b1b1d3e14f5b0cbfa234bcbca","message":"Conversion is successful.","request_id":"ea2af93b1b1d3e14f5b0cbfa234bcbb0","status":"success"}
+x_banun_bunow_si_0: ---
+x_banun_bunow_si_0: Method: convertToPDF with documentConfiguration
+x_banun_bunow_si_0:   Status: SUCCESS
+x_banun_bunow_si_0:   Result: {"message":" Conversion failed. f62a3d3b1b1d3e14f5b0cbfa234bcb00: Given PDF Generation Font Family record with sys id - null does not exist or there are no Font Families attached to the record.","request_id":"f62a3d3b1b1d3e14f5b0cbfa234bcb00","status":"failure"}
+x_banun_bunow_si_0: ---
+x_banun_bunow_si_0: Method: PDFContentPusher
+x_banun_bunow_si_0:   Status: EXCEPTION
+x_banun_bunow_si_0:   Error: undefined is not a function.
+x_banun_bunow_si_0: ---
+x_banun_bunow_si_0: Method: Document Generation API
+x_banun_bunow_si_0:   Status: SKIPPED
+x_banun_bunow_si_0:   Note: Requires template sys_id
+x_banun_bunow_si_0: ---
+x_banun_bunow_si_0: 
+========================================
+x_banun_bunow_si_0: PDF API TEST: Check attachments on record SIGR0001602
+x_banun_bunow_si_0: PDF API TEST: Navigate to the record and look for TEST_Method*.pdf files
+x_banun_bunow_si_0: ========================================
