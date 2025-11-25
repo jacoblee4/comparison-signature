@@ -1,125 +1,116 @@
 (function executeRule(current, previous) {
     
     gs.info('SIGNATURE HELPER BR: ========== Business Rule Started ==========');
-    gs.info('SIGNATURE HELPER BR: Approval sys_id = ' + current.sys_id);
     
     try {
-        gs.info('SIGNATURE HELPER BR: Getting document record...');
         var documentRecord = current.document_id.getRefRecord();
         
         if (!documentRecord || !documentRecord.isValidRecord()) {
             gs.error('SIGNATURE HELPER BR: Document record invalid');
             return;
         }
-        
-        gs.info('SIGNATURE HELPER BR: Document record retrieved');
 
         var parentSysId;
         var documentTableName = documentRecord.getTableName();
-        gs.info('SIGNATURE HELPER BR: Document table = ' + documentTableName);
 
         if (documentTableName == 'x_banun_bunow_si_0_credit_authority_limits' || 
             documentTableName == 'x_banun_bunow_si_0_non_credit_authority_limits') {
-            gs.info('SIGNATURE HELPER BR: Document is child, getting parent...');
             var parent = documentRecord.parent.getRefRecord();
             if (!parent || !parent.isValidRecord()) {
-                gs.error('SIGNATURE HELPER BR: Parent record invalid');
                 return;
             }
             parentSysId = parent.sys_id.toString();
-            gs.info('SIGNATURE HELPER BR: Parent sys_id from child = ' + parentSysId);
         } else {
             parentSysId = documentRecord.sys_id.toString();
-            gs.info('SIGNATURE HELPER BR: Parent sys_id (document is parent) = ' + parentSysId);
         }
 
-        // Check if HTML already exists
-        gs.info('SIGNATURE HELPER BR: Checking for existing attachments...');
+        // Check if PDF already exists
         var existingPDF = new GlideRecord('sys_attachment');
         existingPDF.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
         existingPDF.addQuery('table_sys_id', parentSysId);
         existingPDF.addQuery('file_name', 'CONTAINS', 'Authority_Limits_Comparison');
+        existingPDF.addQuery('file_name', 'ENDSWITH', '.pdf');
         existingPDF.query();
 
         if (existingPDF.hasNext()) {
-            gs.info('SIGNATURE HELPER BR: Attachment already exists, skipping');
+            gs.info('SIGNATURE HELPER BR: PDF already exists, skipping');
             return;
         }
-        
-        gs.info('SIGNATURE HELPER BR: No existing attachment found');
 
         // Get parent record
-        gs.info('SIGNATURE HELPER BR: Retrieving parent record...');
         var parentRec = new GlideRecord('x_banun_bunow_si_0_signature_request');
         if (!parentRec.get(parentSysId)) {
-            gs.error('SIGNATURE HELPER BR: Could not retrieve parent record');
             return;
         }
         
-        gs.info('SIGNATURE HELPER BR: Parent record retrieved: ' + parentRec.number);
+        gs.info('SIGNATURE HELPER BR: Generating PDF for ' + parentRec.number);
 
-        gs.info('SIGNATURE HELPER BR: Instantiating SignatureHelper...');
+        // Build HTML content
         var helper = new x_banun_bunow_si_0.SignatureHelper();
-        gs.info('SIGNATURE HELPER BR: SignatureHelper instantiated');
-        
-        gs.info('SIGNATURE HELPER BR: Calling _buildHTMLContent...');
         var htmlContent = helper._buildHTMLContent(parentRec);
         
-        gs.info('SIGNATURE HELPER BR: _buildHTMLContent returned, checking content...');
-        
         if (!htmlContent) {
-            gs.warn('SIGNATURE HELPER BR: No HTML content generated (null/empty)');
+            gs.warn('SIGNATURE HELPER BR: No HTML content generated');
             return;
         }
         
         gs.info('SIGNATURE HELPER BR: HTML content generated, length = ' + htmlContent.length);
         
-        // Create attachment directly using GlideSysAttachment
-        var fileName = 'Authority_Limits_Comparison_' + parentRec.number + '.html';
-        gs.info('SIGNATURE HELPER BR: Creating attachment with filename: ' + fileName);
-        
+        // Step 1: Create temporary HTML attachment
+        var tempFileName = 'temp_comparison_' + parentRec.number + '.html';
         var sa = new GlideSysAttachment();
-        gs.info('SIGNATURE HELPER BR: GlideSysAttachment instantiated');
         
-        gs.info('SIGNATURE HELPER BR: Calling sa.write...');
-        gs.info('SIGNATURE HELPER BR: - Record: ' + parentRec.getTableName() + ':' + parentRec.sys_id);
-        gs.info('SIGNATURE HELPER BR: - Filename: ' + fileName);
-        gs.info('SIGNATURE HELPER BR: - Content type: text/html');
-        gs.info('SIGNATURE HELPER BR: - Content length: ' + htmlContent.length);
-        
-        var attachmentSysId = sa.write(
+        var htmlAttachmentSysId = sa.write(
             parentRec,
-            fileName,
+            tempFileName,
             'text/html',
             htmlContent
         );
         
-        gs.info('SIGNATURE HELPER BR: sa.write completed');
-        gs.info('SIGNATURE HELPER BR: Returned sys_id = ' + attachmentSysId);
-        gs.info('SIGNATURE HELPER BR: sys_id type = ' + typeof attachmentSysId);
+        if (!htmlAttachmentSysId) {
+            gs.error('SIGNATURE HELPER BR: Failed to create temp HTML');
+            return;
+        }
         
-        if (attachmentSysId) {
-            gs.info('SIGNATURE HELPER BR: HTML document created successfully!');
-            gs.info('SIGNATURE HELPER BR: Attachment sys_id = ' + attachmentSysId);
+        gs.info('SIGNATURE HELPER BR: Temp HTML created: ' + htmlAttachmentSysId);
+        
+        // Step 2: Convert HTML attachment to PDF using print-to-PDF
+        var pdfFileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
+        
+        gs.info('SIGNATURE HELPER BR: Converting HTML to PDF...');
+        
+        var renderer = new sn_pdfgeneratorutils.PDFGenerationAPI();
+        var pdfAttachmentSysId = renderer.convertAttachmentToPDF(
+            htmlAttachmentSysId,
+            pdfFileName
+        );
+        
+        gs.info('SIGNATURE HELPER BR: PDF conversion result = ' + pdfAttachmentSysId);
+        
+        if (pdfAttachmentSysId) {
+            gs.info('SIGNATURE HELPER BR: PDF created successfully: ' + pdfAttachmentSysId);
             
-            // Verify it exists
-            var verifyAttach = new GlideRecord('sys_attachment');
-            if (verifyAttach.get(attachmentSysId)) {
-                gs.info('SIGNATURE HELPER BR: VERIFIED - Attachment found in database');
-                gs.info('SIGNATURE HELPER BR: - File name: ' + verifyAttach.file_name);
-                gs.info('SIGNATURE HELPER BR: - Table: ' + verifyAttach.table_name);
-                gs.info('SIGNATURE HELPER BR: - Table sys_id: ' + verifyAttach.table_sys_id);
-                gs.info('SIGNATURE HELPER BR: - Size: ' + verifyAttach.size_bytes + ' bytes');
-            } else {
-                gs.error('SIGNATURE HELPER BR: Could not verify attachment exists!');
+            // Step 3: Delete the temporary HTML file
+            var tempHTML = new GlideRecord('sys_attachment');
+            if (tempHTML.get(htmlAttachmentSysId)) {
+                tempHTML.deleteRecord();
+                gs.info('SIGNATURE HELPER BR: Temp HTML deleted');
+            }
+            
+            // Verify PDF exists
+            var verifyPDF = new GlideRecord('sys_attachment');
+            if (verifyPDF.get(pdfAttachmentSysId)) {
+                gs.info('SIGNATURE HELPER BR: PDF VERIFIED');
+                gs.info('SIGNATURE HELPER BR: - File name: ' + verifyPDF.file_name);
+                gs.info('SIGNATURE HELPER BR: - Size: ' + verifyPDF.size_bytes + ' bytes');
             }
         } else {
-            gs.error('SIGNATURE HELPER BR: Failed to create HTML attachment - sa.write returned null/empty');
+            gs.error('SIGNATURE HELPER BR: PDF conversion failed');
         }
 
     } catch (e) {
-        gs.error('SIGNATURE HELPER BR: Exception occurred: ' + e.message);
-        gs.error('SIGNATURE HELPER BR: Exception stack: ' + e.stack);
+        gs.error('SIGNATURE HELPER BR: Exception: ' + e.message);
+        gs.error('SIGNATURE HELPER BR: Stack: ' + e.stack);
     }
     
     gs.info('SIGNATURE HELPER BR: ========== Business Rule Ended ==========');
