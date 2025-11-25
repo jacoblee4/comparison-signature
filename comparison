@@ -1,0 +1,485 @@
+Recommended Approach: Business Rule + Mail Script Modification
+This keeps your existing architecture mostly intact while adding PDF generation.
+Step 1: Create the Script Include for PDF Generation
+Navigate to System Definition > Script Includes and create:
+Name: SignatureAuthorityPDFGenerator
+javascriptvar SignatureAuthorityPDFGenerator = Class.create();
+SignatureAuthorityPDFGenerator.prototype = {
+    initialize: function() {},
+
+    generateComparisonPDF: function(parentSysId) {
+        var parent = new GlideRecord('x_banun_bunow_si_0_signature_request');
+        if (!parent.get(parentSysId)) {
+            gs.error('PDF Generation: Unable to retrieve parent record');
+            return null;
+        }
+
+        gs.info('PDF Generation: Starting for request ' + parent.number);
+
+        // Build the HTML content
+        var htmlContent = this._buildHTMLContent(parent);
+        
+        if (!htmlContent) {
+            gs.error('PDF Generation: No HTML content generated');
+            return null;
+        }
+
+        // Generate PDF
+        try {
+            var pdfGenerator = new sn_pdfgeneratorutils.PDFGenerationAPI();
+            var pdfOutput = pdfGenerator.convertToPDF(htmlContent);
+            
+            if (!pdfOutput || !pdfOutput.getSysId()) {
+                gs.error('PDF Generation: Failed to create PDF');
+                return null;
+            }
+
+            var attachmentSysId = pdfOutput.getSysId();
+            
+            // Update the attachment to link it to the parent record with proper name
+            var attachmentGR = new GlideRecord('sys_attachment');
+            if (attachmentGR.get(attachmentSysId)) {
+                attachmentGR.table_name = 'x_banun_bunow_si_0_signature_request';
+                attachmentGR.table_sys_id = parent.sys_id.toString();
+                attachmentGR.file_name = 'Authority_Limits_Comparison_' + parent.number + '.pdf';
+                attachmentGR.update();
+                
+                gs.info('PDF Generation: Successfully created and attached PDF');
+                return attachmentSysId;
+            }
+            
+        } catch (e) {
+            gs.error('PDF Generation Exception: ' + e.message);
+            return null;
+        }
+
+        return null;
+    },
+
+    _buildHTMLContent: function(parent) {
+        // Same logic as your mail script - I'll adapt it for PDF
+        
+        // Function to get value or return 0
+        function safeGetValue(glideRecord, fieldName) {
+            var value = glideRecord.getValue(fieldName);
+            return parseFloat(value) || 0;
+        }
+
+        // Function to format currency
+        function formatCurrency(value) {
+            if (!value || value === 0) return '-';
+            return '$' + parseFloat(value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Get the job function description from the requested job code
+        var jobCodeGr = new GlideRecord('x_banun_rbac_job_code');
+        if (!jobCodeGr.get(parent.getValue('job_code'))) {
+            return null;
+        }
+
+        var jobFunctionDescription = jobCodeGr.getValue('job_function_description') ||
+            jobCodeGr.getValue('u_job_function_description') ||
+            jobCodeGr.getValue('job_function');
+
+        if (!jobFunctionDescription) {
+            return null;
+        }
+
+        // Get all job codes with matching job function description
+        var jobCodesList = [];
+        var jobCodesGr = new GlideRecord('x_banun_rbac_job_code');
+        jobCodesGr.addQuery('job_function_description', jobFunctionDescription);
+        jobCodesGr.query();
+
+        while (jobCodesGr.next()) {
+            jobCodesList.push(jobCodesGr.sys_id.toString());
+        }
+
+        if (jobCodesList.length === 0) {
+            return null;
+        }
+
+        // Get the requested limits
+        var requestedLimits = {
+            job_code: parent.job_code.getDisplayValue(),
+            job_code_sys_id: parent.getValue('job_code'),
+            sys_id: 'REQUESTED',
+            isRequested: true
+        };
+
+        // Get job title
+        var requestedJobCodeGr = new GlideRecord('x_banun_rbac_job_code');
+        if (requestedJobCodeGr.get(parent.getValue('job_code'))) {
+            requestedLimits.job_title = requestedJobCodeGr.getValue('job_description') || '';
+        }
+
+        // Determine if this is a change request
+        var isChangeRequest = (parent.request_type == 'change_to_existing_authority');
+
+        // Fetch credit limits
+        var creditGr = new GlideRecord('x_banun_bunow_si_0_credit_authority_limits');
+        creditGr.addQuery('parent', parent.sys_id);
+        creditGr.query();
+
+        if (creditGr.next()) {
+            requestedLimits.overdraft_internal = safeGetValue(creditGr, 'overdraft_internal_accounts');
+            requestedLimits.overdraft_external = safeGetValue(creditGr, 'overdraft_external_accounts');
+            requestedLimits.unavailable_internal = safeGetValue(creditGr, 'unavailable_funds_internal_accounts');
+            requestedLimits.unavailable_external = safeGetValue(creditGr, 'unavailable_funds_external_accounts');
+
+            if (isChangeRequest) {
+                requestedLimits.original_overdraft_internal = safeGetValue(creditGr, 'original_overdraft_internal_accounts');
+                requestedLimits.original_overdraft_external = safeGetValue(creditGr, 'original_overdraft_external_accounts');
+                requestedLimits.original_unavailable_internal = safeGetValue(creditGr, 'original_unavailable_funds_internal_accounts');
+                requestedLimits.original_unavailable_external = safeGetValue(creditGr, 'original_unavailable_funds_external_accounts');
+            }
+        }
+
+        // Fetch non-credit limits
+        var nonCreditGr = new GlideRecord('x_banun_bunow_si_0_non_credit_authority_limits');
+        nonCreditGr.addQuery('parent', parent.sys_id);
+        nonCreditGr.query();
+
+        if (nonCreditGr.next()) {
+            requestedLimits.disbursement_ach = safeGetValue(nonCreditGr, 'disbursement_ach');
+            requestedLimits.wire_internal = safeGetValue(nonCreditGr, 'disbursement_wire_transfer_internal');
+            requestedLimits.wire_external = safeGetValue(nonCreditGr, 'disbursement_wire_transfer_external');
+            requestedLimits.checks_internal = safeGetValue(nonCreditGr, 'disbursement_official_checks_internal');
+            requestedLimits.checks_external = safeGetValue(nonCreditGr, 'disbursement_official_checks_external');
+            requestedLimits.check_cashing_on_us = safeGetValue(nonCreditGr, 'check_cashing_on_us');
+            requestedLimits.check_cashing_not_on_us = safeGetValue(nonCreditGr, 'check_cashing_not_on_us');
+            requestedLimits.remote_deposit = safeGetValue(nonCreditGr, 'remote_deposit');
+            requestedLimits.treasury_wire = safeGetValue(nonCreditGr, 'treasury_solutions_company_wire_limits');
+            requestedLimits.fx_wire = safeGetValue(nonCreditGr, 'fx_wire_limits');
+
+            if (isChangeRequest) {
+                requestedLimits.original_disbursement_ach = safeGetValue(nonCreditGr, 'original_disbursement_ach');
+                requestedLimits.original_wire_internal = safeGetValue(nonCreditGr, 'original_disbursement_wire_transfer_internal');
+                requestedLimits.original_wire_external = safeGetValue(nonCreditGr, 'original_disbursement_wire_transfer_external');
+                requestedLimits.original_checks_internal = safeGetValue(nonCreditGr, 'original_disbursement_official_checks_internal');
+                requestedLimits.original_checks_external = safeGetValue(nonCreditGr, 'original_disbursement_official_checks_external');
+                requestedLimits.original_check_cashing_on_us = safeGetValue(nonCreditGr, 'original_check_cashing_on_us');
+                requestedLimits.original_check_cashing_not_on_us = safeGetValue(nonCreditGr, 'original_check_cashing_not_on_us');
+                requestedLimits.original_remote_deposit = safeGetValue(nonCreditGr, 'original_remote_deposit');
+                requestedLimits.original_treasury_wire = safeGetValue(nonCreditGr, 'original_treasury_solutions_company_wire_limits');
+                requestedLimits.original_fx_wire = safeGetValue(nonCreditGr, 'original_fx_wire_limits');
+            }
+        }
+
+        // Define all limit fields
+        var limitFields = [
+            'disbursement_ach',
+            'wire_internal',
+            'wire_external',
+            'checks_internal',
+            'checks_external',
+            'check_cashing_on_us',
+            'check_cashing_not_on_us',
+            'remote_deposit',
+            'treasury_wire',
+            'fx_wire',
+            'overdraft_internal',
+            'overdraft_external',
+            'unavailable_internal',
+            'unavailable_external'
+        ];
+
+        // Find the largest requested value
+        var largestValue = 0;
+        var largestField = '';
+
+        for (var i = 0; i < limitFields.length; i++) {
+            var fieldName = limitFields[i];
+            var value = requestedLimits[fieldName] || 0;
+            if (value > largestValue) {
+                largestValue = value;
+                largestField = fieldName;
+            }
+        }
+
+        if (largestValue === 0) {
+            return null; // No limits to compare
+        }
+
+        // Get existing authority limits
+        var existingLimits = [];
+
+        for (var j = 0; j < jobCodesList.length; j++) {
+            var limitGr = new GlideRecord('x_banun_bunow_si_0_authority_limits');
+            limitGr.addQuery('job_code', jobCodesList[j]);
+            limitGr.query();
+
+            while (limitGr.next()) {
+                var limit = {
+                    job_code: limitGr.job_code.getDisplayValue(),
+                    job_code_sys_id: limitGr.getValue('job_code'),
+                    sys_id: limitGr.sys_id.toString(),
+                    isRequested: false
+                };
+
+                var jobCodeGr2 = new GlideRecord('x_banun_rbac_job_code');
+                if (jobCodeGr2.get(limitGr.getValue('job_code'))) {
+                    limit.job_title = jobCodeGr2.getValue('job_description') || '';
+                }
+
+                limit.disbursement_ach = safeGetValue(limitGr, 'disbursement_ach');
+                limit.wire_internal = safeGetValue(limitGr, 'disbursement_wire_transfer_internal');
+                limit.wire_external = safeGetValue(limitGr, 'disbursement_wire_transfer_external');
+                limit.checks_internal = safeGetValue(limitGr, 'disbursement_official_checks_internal');
+                limit.checks_external = safeGetValue(limitGr, 'disbursement_official_checks_external');
+                limit.check_cashing_on_us = safeGetValue(limitGr, 'check_cashing_on_us');
+                limit.check_cashing_not_on_us = safeGetValue(limitGr, 'check_cashing_not_on_us');
+                limit.remote_deposit = safeGetValue(limitGr, 'remote_deposit');
+                limit.treasury_wire = safeGetValue(limitGr, 'treasury_solutions_company_wire_limits');
+                limit.fx_wire = safeGetValue(limitGr, 'fx_wire_limits');
+                limit.overdraft_internal = safeGetValue(limitGr, 'overdraft_internal_accounts');
+                limit.overdraft_external = safeGetValue(limitGr, 'overdraft_external_accounts');
+                limit.unavailable_internal = safeGetValue(limitGr, 'unavailable_funds_internal_accounts');
+                limit.unavailable_external = safeGetValue(limitGr, 'unavailable_funds_external_accounts');
+
+                existingLimits.push(limit);
+            }
+        }
+
+        existingLimits.push(requestedLimits);
+
+        // Sort by largest field value
+        existingLimits.sort(function(a, b) {
+            var aVal = a[largestField] || 0;
+            var bVal = b[largestField] || 0;
+            return bVal - aVal;
+        });
+
+        // Function to determine if field should be highlighted
+        function shouldHighlight(row, fieldName) {
+            if (!row.isRequested) return false;
+
+            var newValue = row[fieldName] || 0;
+
+            if (isChangeRequest) {
+                var originalValue = row['original_' + fieldName] || 0;
+                return newValue !== originalValue;
+            } else {
+                return newValue > 0;
+            }
+        }
+
+        // Build HTML with PDF-optimized styling
+        var html = '<!DOCTYPE html><html><head>';
+        html += '<meta charset="UTF-8">';
+        html += '<style>';
+        html += 'body { font-family: Arial, sans-serif; margin: 15px; font-size: 9px; }';
+        html += 'h2 { color: #00aae3; margin-bottom: 5px; font-size: 14px; }';
+        html += 'h3 { color: #000000; margin: 10px 0 5px 0; font-size: 12px; border-bottom: 2px solid #00aae3; padding-bottom: 5px; }';
+        html += '.info { margin: 10px 0; font-size: 9px; }';
+        html += '.info-label { font-weight: bold; display: inline-block; width: 120px; }';
+        html += 'table { width: 100%; border-collapse: collapse; margin-top: 10px; page-break-inside: auto; }';
+        html += 'tr { page-break-inside: avoid; page-break-after: auto; }';
+        html += 'th { background-color: #EBF1DE; color: #000000; padding: 6px 4px; text-align: center; font-weight: 600; border: 1px solid #000; font-size: 7px; line-height: 1.2; }';
+        html += 'th.category { background-color: #00aae3; color: #ffffff; font-weight: 700; font-size: 8px; }';
+        html += 'th.group { background-color: #C5D9F1; color: #000000; font-weight: 600; font-size: 7px; }';
+        html += 'td { padding: 4px; text-align: right; border: 1px solid #ddd; font-size: 8px; color: #5a6c7d; }';
+        html += 'td.job-title { text-align: left; font-weight: 600; background-color: #EBF1DE; }';
+        html += 'td.job-code { text-align: center; font-weight: 500; background-color: #EBF1DE; }';
+        html += '.requested-row { background-color: #fff3cd; }';
+        html += '.requested-row td.job-title, .requested-row td.job-code { background-color: #FFFF99; font-weight: 700; }';
+        html += '.highlight { background-color: #FFFF99; font-weight: bold; color: #000000; }';
+        html += '.requested-label { color: #FF0000; font-size: 7px; font-weight: 700; display: block; margin-top: 2px; }';
+        html += '.note { background-color: #fff3cd; padding: 8px; margin-top: 10px; border: 1px solid #ffc107; border-radius: 4px; font-size: 8px; }';
+        html += '</style>';
+        html += '</head><body>';
+
+        // Header information
+        html += '<h2>Authority Limits Comparison Report</h2>';
+        html += '<div class="info">';
+        html += '<span class="info-label">Request Number:</span> ' + parent.number + '<br/>';
+        html += '<span class="info-label">Employee:</span> ' + parent.employee.getDisplayValue() + '<br/>';
+        html += '<span class="info-label">Request Type:</span> ' + parent.request_type.getDisplayValue() + '<br/>';
+        html += '<span class="info-label">Generated:</span> ' + new GlideDateTime().getDisplayValue() + '<br/>';
+        html += '</div>';
+
+        html += '<h3>Job Function: ' + jobFunctionDescription + '</h3>';
+
+        // Build table
+        html += '<table>';
+        html += '<thead>';
+
+        // First header row
+        html += '<tr>';
+        html += '<th rowspan="3">Job Title</th>';
+        html += '<th colspan="10" class="category">Non-Credit Authority</th>';
+        html += '<th colspan="4" class="category" style="background-color: #e74c3c;">Credit Authority</th>';
+        html += '<th rowspan="3">Job Code</th>';
+        html += '</tr>';
+
+        // Second header row
+        html += '<tr>';
+        html += '<th colspan="5" class="group">Disbursement</th>';
+        html += '<th colspan="2" class="group">Check Cashing</th>';
+        html += '<th colspan="3" class="group">Other</th>';
+        html += '<th colspan="2" class="group">Overdraft</th>';
+        html += '<th colspan="2" class="group">Unavailable Funds</th>';
+        html += '</tr>';
+
+        // Third header row
+        html += '<tr>';
+        html += '<th>ACH</th>';
+        html += '<th>Wire<br/>Internal</th>';
+        html += '<th>Wire<br/>External</th>';
+        html += '<th>Checks<br/>Internal</th>';
+        html += '<th>Checks<br/>External</th>';
+        html += '<th>On-Us</th>';
+        html += '<th>Not On-Us</th>';
+        html += '<th>Remote<br/>Deposit</th>';
+        html += '<th>Treasury<br/>Wire</th>';
+        html += '<th>FX Wire</th>';
+        html += '<th>Internal</th>';
+        html += '<th>External</th>';
+        html += '<th>Internal</th>';
+        html += '<th>External</th>';
+        html += '</tr>';
+
+        html += '</thead><tbody>';
+
+        // Table rows
+        for (var r = 0; r < existingLimits.length; r++) {
+            var row = existingLimits[r];
+            var rowClass = row.isRequested ? ' class="requested-row"' : '';
+
+            html += '<tr' + rowClass + '>';
+
+            // Job Title
+            html += '<td class="job-title">' + (row.job_title || '');
+            if (row.isRequested) {
+                html += '<span class="requested-label">(REQUESTED)</span>';
+            }
+            html += '</td>';
+
+            // All value columns
+            for (var f = 0; f < limitFields.length; f++) {
+                var field = limitFields[f];
+                var cellClass = shouldHighlight(row, field) ? ' class="highlight"' : '';
+                html += '<td' + cellClass + '>' + formatCurrency(row[field]) + '</td>';
+            }
+
+            // Job Code
+            html += '<td class="job-code">' + row.job_code;
+            if (row.isRequested) {
+                html += '<span class="requested-label">(REQUESTED)</span>';
+            }
+            html += '</td>';
+
+            html += '</tr>';
+        }
+
+        html += '</tbody></table>';
+
+        if (existingLimits.length === 1) {
+            html += '<div class="note">⚠️ No existing authority limits found for job function <strong>' + jobFunctionDescription + '</strong>. Only the requested limits are shown above.</div>';
+        }
+
+        html += '</body></html>';
+
+        return html;
+    },
+
+    type: 'SignatureAuthorityPDFGenerator'
+};
+Step 2: Create a Business Rule to Generate PDF
+Navigate to System Definition > Business Rules and create:
+Name: Generate Signature Authority Comparison PDF
+Table: sysapproval_approver
+When: after
+Insert: ✓ (checked)
+Filter Conditions:
+
+State = Requested
+Document table = x_banun_bunow_si_0_signature_request (or credit/non-credit child tables)
+
+Advanced: ✓ (checked)
+javascript(function executeRule(current, previous /*null when async*/) {
+    
+    try {
+        // Get the document record (could be parent or child)
+        var documentRecord = current.document_id.getRefRecord();
+        
+        if (!documentRecord || !documentRecord.isValidRecord()) {
+            gs.error('PDF Business Rule: Unable to retrieve document record');
+            return;
+        }
+        
+        var parentSysId;
+        var documentTableName = documentRecord.getTableName();
+        
+        // Determine if document is parent or child and get parent sys_id
+        if (documentTableName == 'x_banun_bunow_si_0_credit_authority_limits' || 
+            documentTableName == 'x_banun_bunow_si_0_non_credit_authority_limits') {
+            // Document is child - get parent
+            var parent = documentRecord.parent.getRefRecord();
+            if (!parent || !parent.isValidRecord()) {
+                gs.error('PDF Business Rule: Unable to retrieve parent from child record');
+                return;
+            }
+            parentSysId = parent.sys_id.toString();
+        } else {
+            // Document is parent
+            parentSysId = documentRecord.sys_id.toString();
+        }
+        
+        // Check if PDF already exists for this request
+        var existingPDF = new GlideRecord('sys_attachment');
+        existingPDF.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
+        existingPDF.addQuery('table_sys_id', parentSysId);
+        existingPDF.addQuery('file_name', 'CONTAINS', 'Authority_Limits_Comparison');
+        existingPDF.query();
+        
+        if (existingPDF.hasNext()) {
+            gs.info('PDF Business Rule: PDF already exists for this request, skipping generation');
+            return;
+        }
+        
+        // Generate the PDF
+        var pdfGen = new SignatureAuthorityPDFGenerator();
+        var attachmentSysId = pdfGen.generateComparisonPDF(parentSysId);
+        
+        if (attachmentSysId) {
+            gs.info('PDF Business Rule: Successfully generated PDF for request');
+        } else {
+            gs.warn('PDF Business Rule: PDF generation returned null');
+        }
+        
+    } catch (e) {
+        gs.error('PDF Business Rule Exception: ' + e.message);
+    }
+    
+})(current, previous);
+Step 3: Modify Your Email Notification
+
+Go to System Notification > Email > Notifications
+Find your approval notification
+Check the box: "Include attachments"
+Modify your mail script to add a reference to the PDF:
+
+At the beginning of your existing mail script, add:
+javascript(function runMailScript(current, template, email, email_action, event) {
+
+    // Add this section at the very top
+    template.print('<div style="margin: 20px 0; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #00aae3; border-radius: 4px;">');
+    template.print('<p style="margin: 0 0 10px 0;"><strong>📎 Authority Limits Comparison</strong></p>');
+    template.print('<p style="margin: 0; font-size: 14px;">A detailed comparison of authority limits has been attached to this email as a PDF for your review.</p>');
+    template.print('</div>');
+
+    // Then continue with your existing mail script logic...
+    var documentRecord, parent;
+    
+    // ... rest of your existing code
+Step 4: Test
+
+Create a test signature authority request
+Submit it for approval
+Check that:
+
+PDF is generated and attached to the parent record
+Approval notification is sent
+PDF is attached to the email
+Email body references the PDF
