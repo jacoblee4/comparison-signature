@@ -21,16 +21,16 @@
             parentSysId = documentRecord.sys_id.toString();
         }
 
-        // Check if PDF already exists on parent
+        // Check if PDF already exists on THIS APPROVAL record
         var existingPDF = new GlideRecord('sys_attachment');
-        existingPDF.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
-        existingPDF.addQuery('table_sys_id', parentSysId);
+        existingPDF.addQuery('table_name', 'sysapproval_approver');
+        existingPDF.addQuery('table_sys_id', current.sys_id.toString());
         existingPDF.addQuery('file_name', 'CONTAINS', 'Authority_Limits_Comparison');
         existingPDF.addQuery('file_name', 'ENDSWITH', '.pdf');
         existingPDF.query();
 
         if (existingPDF.hasNext()) {
-            gs.info('PDF already exists for request, skipping generation');
+            gs.info('PDF already exists on approval record, skipping generation');
             return;
         }
 
@@ -48,8 +48,6 @@
             return;
         }
 
-        var pdfFileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
-
         // Configure header/footer for landscape PDF
         var hfInfo = {
             "FooterText": "Authority Limits Comparison - Generated: " + new GlideDateTime().getDisplayValue(),
@@ -61,46 +59,20 @@
             "LeftOrRightMargin": "20"
         };
         
-        // Generate PDF attached to PARENT record
+        // Generate PDF attached DIRECTLY to APPROVAL record
+        var pdfFileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
         var pdfAPI = new sn_pdfgeneratorutils.PDFGenerationAPI();
+        
         var result = pdfAPI.convertToPDFWithHeaderFooter(
             htmlContent,
-            parentRec.getTableName(),
-            parentRec.sys_id.toString(),
+            'sysapproval_approver',           // Attach to approval table
+            current.sys_id.toString(),        // Attach to THIS approval record
             pdfFileName,
             hfInfo
         );
         
-        if (result && result.status == 'success' && result.attachment_id) {
-            gs.info('PDF generated successfully, attachment_id: ' + result.attachment_id);
-            
-            // NOW ALSO ATTACH TO THE APPROVAL RECORD
-            var sa = new GlideSysAttachment();
-            
-            // Get the PDF content from parent attachment
-            var parentAttachment = new GlideRecord('sys_attachment');
-            if (parentAttachment.get(result.attachment_id)) {
-                
-                // Get the approval record
-                var approvalGR = new GlideRecord('sysapproval_approver');
-                if (approvalGR.get(current.sys_id)) {
-                    
-                    // Copy PDF to approval record
-                    var copiedAttachmentId = sa.copy(
-                        'x_banun_bunow_si_0_signature_request',
-                        parentRec.sys_id.toString(),
-                        'sysapproval_approver',
-                        current.sys_id.toString(),
-                        result.attachment_id
-                    );
-                    
-                    if (copiedAttachmentId) {
-                        gs.info('PDF copied to approval record: ' + copiedAttachmentId);
-                    } else {
-                        gs.error('Failed to copy PDF to approval record');
-                    }
-                }
-            }
+        if (result && result.status == 'success') {
+            gs.info('PDF generated and attached to approval record');
         }
 
     } catch (e) {
