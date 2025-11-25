@@ -207,227 +207,222 @@ _buildHTMLContent: function(parent) {
             }
         }
 
-        // Build HTML with PDF-optimized styling
-        var html = '<!DOCTYPE html><html><head>';
-        html += '<meta charset="UTF-8">';
-        html += '<style>';
-        html += 'body { font-family: Arial, sans-serif; margin: 15px; font-size: 9px; }';
-        html += 'h2 { color: #00aae3; margin-bottom: 5px; font-size: 14px; }';
-        html += 'h3 { color: #000000; margin: 10px 0 5px 0; font-size: 12px; border-bottom: 2px solid #00aae3; padding-bottom: 5px; }';
-        html += '.info { margin: 10px 0; font-size: 9px; }';
-        html += '.info-label { font-weight: bold; display: inline-block; width: 120px; }';
-        html += 'table { width: 100%; border-collapse: collapse; margin-top: 10px; page-break-inside: auto; }';
-        html += 'tr { page-break-inside: avoid; page-break-after: auto; }';
-        html += 'th { background-color: #EBF1DE; color: #000000; padding: 6px 4px; text-align: center; font-weight: 600; border: 1px solid #000; font-size: 7px; line-height: 1.2; }';
-        html += 'th.category { background-color: #00aae3; color: #ffffff; font-weight: 700; font-size: 8px; }';
-        html += 'th.group { background-color: #C5D9F1; color: #000000; font-weight: 600; font-size: 7px; }';
-        html += 'td { padding: 4px; text-align: right; border: 1px solid #ddd; font-size: 8px; color: #5a6c7d; }';
-        html += 'td.job-title { text-align: left; font-weight: 600; background-color: #EBF1DE; }';
-        html += 'td.job-code { text-align: center; font-weight: 500; background-color: #EBF1DE; }';
-        html += '.requested-row { background-color: #fff3cd; }';
-        html += '.requested-row td.job-title, .requested-row td.job-code { background-color: #FFFF99; font-weight: 700; }';
-        html += '.highlight { background-color: #FFFF99; font-weight: bold; color: #000000; }';
-        html += '.requested-label { color: #FF0000; font-size: 7px; font-weight: 700; display: block; margin-top: 2px; }';
-        html += '.note { background-color: #fff3cd; padding: 8px; margin-top: 10px; border: 1px solid #ffc107; border-radius: 4px; font-size: 8px; }';
-        html += '</style>';
-        html += '</head><body>';
+       // Build HTML with PDF-optimized styling
+var html = '<!DOCTYPE html><html><head>';
+html += '<meta charset="UTF-8">';
+html += '<style>';
+html += '@page { size: landscape; margin: 0.5in; }';
+html += 'body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background: white; }';
 
-        // Header information - WITH NULL CHECKS
-        html += '<h2>Authority Limits ' + (hasJobFunction ? 'Comparison ' : '') + 'Report</h2>';
-        html += '<div class="info">';
-        html += '<span class="info-label">Request Number:</span> ' + (parent.number || 'N/A') + '<br/>';
+html += '.report-header { margin-bottom: 20px; border-bottom: 3px solid #0066cc; padding-bottom: 10px; }';
+html += '.report-title { color: #0066cc; font-size: 20px; font-weight: bold; margin: 0 0 10px 0; }';
+html += '.report-meta { background: #f4f4f4; padding: 10px; border-left: 3px solid #0066cc; margin: 10px 0; }';
+html += '.report-meta p { margin: 4px 0; font-size: 11px; color: #333; }';
+html += '.report-meta strong { color: #000; font-weight: 600; }';
 
-        // FIXED: Add null check for employee
-        var employeeName = 'N/A';
-        if (parent.employee && parent.employee.getDisplayValue) {
-            employeeName = parent.employee.getDisplayValue() || 'N/A';
+html += 'h3 { color: #2c3e50; margin: 15px 0 10px 0; font-size: 14px; font-weight: 600; }';
+html += '.note { background-color: #fff9e6; padding: 12px; margin: 10px 0; border: 2px solid #ffc107; border-radius: 4px; font-size: 10px; line-height: 1.5; }';
+
+html += 'table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 9px; margin-top: 15px; }';
+html += 'table, th, td { border: 1px solid #ccc; }';
+
+html += 'th.section-header { padding: 10px 4px; text-align: center; font-weight: bold; font-size: 11px; border: 1px solid #ccc; }';
+html += 'th.job-info-section { color: #495057; background: #e9ecef !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'th.non-credit-section { color: #155724; background: #d4edda !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'th.credit-section { color: #721c24; background: #f8d7da !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += 'th.subsection-header { padding: 8px 4px; text-align: center; font-weight: 600; font-size: 10px; border: 1px solid #ccc; }';
+html += 'th.subsection-non-credit { background: #e8f5e9 !important; color: #2e7d32 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'th.subsection-credit { background: #ffebee !important; color: #c62828 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += 'th { padding: 6px 4px; text-align: center; font-weight: 600; font-size: 8px; color: #fff; background: #6c757d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; white-space: normal; vertical-align: middle; line-height: 1.2; }';
+html += 'th.non-credit-col { background: #28a745 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'th.credit-col { background: #dc3545 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += 'td { padding: 5px 4px; font-size: 9px; border: 1px solid #ddd; }';
+html += 'tr:nth-child(even) { background: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'tr:nth-child(odd) { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += 'td.job-title { text-align: left; font-weight: 600; color: #2c3e50; background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'td.job-code { text-align: center; font-weight: 600; color: #2c3e50; background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += '.requested-row { background-color: #fff3cd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += '.requested-row td.job-title, .requested-row td.job-code { background-color: #fff3cd !important; font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += '.requested-label { color: #FF0000; font-size: 7px; font-weight: 700; display: block; margin-top: 2px; }';
+
+html += 'td.amount-cell { text-align: right; font-weight: 500; color: #2c3e50; }';
+html += 'td.non-credit-cell { background: #e8f5e9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+html += 'td.credit-cell { background: #ffebee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += '.highlight { background-color: #ffc107 !important; font-weight: 700 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+
+html += '@media print { ';
+html += '  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }';
+html += '  body { margin: 0; padding: 10px; }';
+html += '  table { page-break-inside: auto; }';
+html += '  tr { page-break-inside: avoid; page-break-after: auto; }';
+html += '  thead { display: table-header-group; }';
+html += '  th, td { border: 1px solid #999 !important; }';
+html += '}';
+html += '</style>';
+html += '</head><body>';
+
+// Header information
+html += '<div class="report-header">';
+html += '<div class="report-title">Authority Limits ' + (hasJobFunction ? 'Comparison ' : '') + 'Report</div>';
+html += '<div class="report-meta">';
+html += '<p><strong>Request Number:</strong> ' + (parent.number || 'N/A') + '</p>';
+
+// Add null check for employee
+var employeeName = 'N/A';
+if (parent.employee && parent.employee.getDisplayValue) {
+    employeeName = parent.employee.getDisplayValue() || 'N/A';
+}
+html += '<p><strong>Employee:</strong> ' + employeeName + '</p>';
+
+// Add null check for request_type
+var requestType = 'N/A';
+if (parent.request_type && parent.request_type.getDisplayValue) {
+    requestType = parent.request_type.getDisplayValue() || 'N/A';
+}
+html += '<p><strong>Request Type:</strong> ' + requestType + '</p>';
+html += '<p><strong>Generated:</strong> ' + new GlideDateTime().getDisplayValue() + '</p>';
+html += '</div>';
+html += '</div>';
+
+if (hasJobFunction) {
+    html += '<h3>Job Function: ' + jobFunctionDescription + '</h3>';
+} else {
+    html += '<h3>Requested Authority Limits</h3>';
+    html += '<div class="note">⚠️ No job function description is available for this job code, so no comparison with other job codes can be shown.</div>';
+}
+
+// Build table with matching structure
+html += '<table>';
+html += '<thead>';
+
+// Row 1: Main section headers
+html += '<tr>';
+html += '<th rowspan="3" class="section-header job-info-section">Job Title</th>';
+html += '<th colspan="10" class="section-header non-credit-section">Non-Credit Authority</th>';
+html += '<th colspan="4" class="section-header credit-section">Credit Authority</th>';
+html += '<th rowspan="3" class="section-header job-info-section">Job Code</th>';
+html += '</tr>';
+
+// Row 2: Subsection headers
+html += '<tr>';
+html += '<th colspan="5" class="subsection-header subsection-non-credit">Disbursement</th>';
+html += '<th colspan="2" class="subsection-header subsection-non-credit">Check Cashing & Cash Withdrawal</th>';
+html += '<th colspan="3" class="subsection-header subsection-non-credit">Product Limits</th>';
+html += '<th colspan="2" class="subsection-header subsection-credit">Overdraft</th>';
+html += '<th colspan="2" class="subsection-header subsection-credit">Unavailable Funds</th>';
+html += '</tr>';
+
+// Row 3: Column headers
+html += '<tr>';
+html += '<th class="non-credit-col">ACH</th>';
+html += '<th class="non-credit-col">Wire Transfer<br/>Internal</th>';
+html += '<th class="non-credit-col">Wire Transfer<br/>External</th>';
+html += '<th class="non-credit-col">Official Checks<br/>Internal</th>';
+html += '<th class="non-credit-col">Official Checks<br/>External</th>';
+html += '<th class="non-credit-col">Check Cashing<br/>On-Us</th>';
+html += '<th class="non-credit-col">Check Cashing<br/>Not On-Us</th>';
+html += '<th class="non-credit-col">Remote<br/>Deposit</th>';
+html += '<th class="non-credit-col">Treasury Solutions<br/>Company Wire Limits</th>';
+html += '<th class="non-credit-col">FX Wire<br/>Limits</th>';
+html += '<th class="credit-col">Overdraft<br/>Internal</th>';
+html += '<th class="credit-col">Overdraft<br/>External</th>';
+html += '<th class="credit-col">Unavailable Funds<br/>Internal</th>';
+html += '<th class="credit-col">Unavailable Funds<br/>External</th>';
+html += '</tr>';
+
+html += '</thead><tbody>';
+
+// Table rows
+for (var r = 0; r < existingLimits.length; r++) {
+    var row = existingLimits[r];
+    var rowClass = row.isRequested ? ' class="requested-row"' : '';
+
+    html += '<tr' + rowClass + '>';
+
+    // Job Title
+    html += '<td class="job-title">' + (row.job_title || '');
+    if (row.isRequested) {
+        html += '<span class="requested-label">(REQUESTED)</span>';
+    }
+    html += '</td>';
+
+    // Disbursement columns (Non-Credit)
+    var disbursementFields = ['disbursement_ach', 'wire_internal', 'wire_external', 'checks_internal', 'checks_external'];
+    for (var d = 0; d < disbursementFields.length; d++) {
+        var field = disbursementFields[d];
+        var cellClass = 'amount-cell non-credit-cell';
+        if (shouldHighlight(row, field)) {
+            cellClass += ' highlight';
         }
-        html += '<span class="info-label">Employee:</span> ' + employeeName + '<br/>';
-
-        // FIXED: Add null check for request_type
-        var requestType = 'N/A';
-        if (parent.request_type && parent.request_type.getDisplayValue) {
-            requestType = parent.request_type.getDisplayValue() || 'N/A';
-        }
-        html += '<span class="info-label">Request Type:</span> ' + requestType + '<br/>';
-
-        html += '<span class="info-label">Generated:</span> ' + new GlideDateTime().getDisplayValue() + '<br/>';
-        html += '</div>';
-
-        if (hasJobFunction) {
-            html += '<h3>Job Function: ' + jobFunctionDescription + '</h3>';
-        } else {
-            html += '<h3>Requested Authority Limits</h3>';
-            html += '<div class="note">⚠️ No job function description is available for this job code, so no comparison with other job codes can be shown.</div>';
-        }
-
-        // Build table
-        html += '<table>';
-        html += '<thead>';
-
-        // First header row
-        html += '<tr>';
-        html += '<th rowspan="3">Job Title</th>';
-        html += '<th colspan="10" class="category">Non-Credit Authority</th>';
-        html += '<th colspan="4" class="category" style="background-color: #e74c3c;">Credit Authority</th>';
-        html += '<th rowspan="3">Job Code</th>';
-        html += '</tr>';
-
-        // Second header row
-        html += '<tr>';
-        html += '<th colspan="5" class="group">Disbursement</th>';
-        html += '<th colspan="2" class="group">Check Cashing</th>';
-        html += '<th colspan="3" class="group">Other</th>';
-        html += '<th colspan="2" class="group">Overdraft</th>';
-        html += '<th colspan="2" class="group">Unavailable Funds</th>';
-        html += '</tr>';
-
-        // Third header row
-        html += '<tr>';
-        html += '<th>ACH</th>';
-        html += '<th>Wire<br/>Internal</th>';
-        html += '<th>Wire<br/>External</th>';
-        html += '<th>Checks<br/>Internal</th>';
-        html += '<th>Checks<br/>External</th>';
-        html += '<th>On-Us</th>';
-        html += '<th>Not On-Us</th>';
-        html += '<th>Remote<br/>Deposit</th>';
-        html += '<th>Treasury<br/>Wire</th>';
-        html += '<th>FX Wire</th>';
-        html += '<th>Internal</th>';
-        html += '<th>External</th>';
-        html += '<th>Internal</th>';
-        html += '<th>External</th>';
-        html += '</tr>';
-
-        html += '</thead><tbody>';
-
-        // Table rows
-        for (var r = 0; r < existingLimits.length; r++) {
-            var row = existingLimits[r];
-            var rowClass = row.isRequested ? ' class="requested-row"' : '';
-
-            html += '<tr' + rowClass + '>';
-
-            // Job Title
-            html += '<td class="job-title">' + (row.job_title || '');
-            if (row.isRequested) {
-                html += '<span class="requested-label">(REQUESTED)</span>';
-            }
-            html += '</td>';
-
-            // All value columns
-            for (var f = 0; f < limitFields.length; f++) {
-                var field = limitFields[f];
-                var cellClass = shouldHighlight(row, field) ? ' class="highlight"' : '';
-                html += '<td' + cellClass + '>' + formatCurrency(row[field]) + '</td>';
-            }
-
-            // Job Code
-            html += '<td class="job-code">' + row.job_code;
-            if (row.isRequested) {
-                html += '<span class="requested-label">(REQUESTED)</span>';
-            }
-            html += '</td>';
-
-            html += '</tr>';
-        }
-
-        html += '</tbody></table>';
-
-        if (existingLimits.length === 1) {
-            html += '<div class="note">⚠️ No existing authority limits found for job function <strong>' + (jobFunctionDescription || 'N/A') + '</strong>. Only the requested limits are shown above.</div>';
-        }
-
-        html += '</body></html>';
-
-        return html;
-    },
-
-
-
-
-
-
-
-
-********** Business Rule:
-
-(function executeRule(current, previous) {
-    
-    try {
-        var documentRecord = current.document_id.getRefRecord();
-        
-        if (!documentRecord || !documentRecord.isValidRecord()) {
-            return;
-        }
-
-        var parentSysId;
-        var documentTableName = documentRecord.getTableName();
-
-        if (documentTableName == 'x_banun_bunow_si_0_credit_authority_limits' || 
-            documentTableName == 'x_banun_bunow_si_0_non_credit_authority_limits') {
-            var parent = documentRecord.parent.getRefRecord();
-            if (!parent || !parent.isValidRecord()) {
-                return;
-            }
-            parentSysId = parent.sys_id.toString();
-        } else {
-            parentSysId = documentRecord.sys_id.toString();
-        }
-
-        // Check if PDF already exists on THIS APPROVAL record
-        var existingPDF = new GlideRecord('sys_attachment');
-        existingPDF.addQuery('table_name', 'sysapproval_approver');
-        existingPDF.addQuery('table_sys_id', current.sys_id.toString());
-        existingPDF.addQuery('file_name', 'CONTAINS', 'Authority_Limits_Comparison');
-        existingPDF.addQuery('file_name', 'ENDSWITH', '.pdf');
-        existingPDF.query();
-
-        if (existingPDF.hasNext()) {
-            return;
-        }
-
-        // Get parent record
-        var parentRec = new GlideRecord('x_banun_bunow_si_0_signature_request');
-        if (!parentRec.get(parentSysId)) {
-            return;
-        }
-        
-        // Build HTML content
-        var helper = new x_banun_bunow_si_0.SignatureHelper();
-        var htmlContent = helper._buildHTMLContent(parentRec);
-        
-        if (!htmlContent) {
-            return;
-        }
-
-        // Configure header/footer for landscape PDF
-        var hfInfo = {
-            "FooterText": "Authority Limits Comparison - Generated: " + new GlideDateTime().getDisplayValue(),
-            "PageSize": "A4",
-            "Orientation": "LANDSCAPE",
-            "GeneratePageNumber": "true",
-            "FooterTextAlignment": "BOTTOM_CENTER",
-            "TopOrBottomMargin": "20",
-            "LeftOrRightMargin": "20"
-        };
-        
-        // Generate PDF attached DIRECTLY to APPROVAL record
-        var pdfFileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
-        var pdfAPI = new sn_pdfgeneratorutils.PDFGenerationAPI();
-        
-        var result = pdfAPI.convertToPDFWithHeaderFooter(
-            htmlContent,
-            'sysapproval_approver',           // Attach to approval table
-            current.sys_id.toString(),        // Attach to THIS approval record
-            pdfFileName,
-            hfInfo
-        );
-        
-
-    } catch (e) {
-        gs.error('PDF Generation Exception: ' + e.message);
+        html += '<td class="' + cellClass + '">' + formatCurrency(row[field]) + '</td>';
     }
 
-})(current, previous);
+    // Check Cashing columns (Non-Credit)
+    var checkCashingFields = ['check_cashing_on_us', 'check_cashing_not_on_us'];
+    for (var cc = 0; cc < checkCashingFields.length; cc++) {
+        var field = checkCashingFields[cc];
+        var cellClass = 'amount-cell non-credit-cell';
+        if (shouldHighlight(row, field)) {
+            cellClass += ' highlight';
+        }
+        html += '<td class="' + cellClass + '">' + formatCurrency(row[field]) + '</td>';
+    }
+
+    // Product Limits columns (Non-Credit)
+    var productFields = ['remote_deposit', 'treasury_wire', 'fx_wire'];
+    for (var p = 0; p < productFields.length; p++) {
+        var field = productFields[p];
+        var cellClass = 'amount-cell non-credit-cell';
+        if (shouldHighlight(row, field)) {
+            cellClass += ' highlight';
+        }
+        html += '<td class="' + cellClass + '">' + formatCurrency(row[field]) + '</td>';
+    }
+
+    // Overdraft columns (Credit)
+    var overdraftFields = ['overdraft_internal', 'overdraft_external'];
+    for (var o = 0; o < overdraftFields.length; o++) {
+        var field = overdraftFields[o];
+        var cellClass = 'amount-cell credit-cell';
+        if (shouldHighlight(row, field)) {
+            cellClass += ' highlight';
+        }
+        html += '<td class="' + cellClass + '">' + formatCurrency(row[field]) + '</td>';
+    }
+
+    // Unavailable Funds columns (Credit)
+    var unavailableFields = ['unavailable_internal', 'unavailable_external'];
+    for (var u = 0; u < unavailableFields.length; u++) {
+        var field = unavailableFields[u];
+        var cellClass = 'amount-cell credit-cell';
+        if (shouldHighlight(row, field)) {
+            cellClass += ' highlight';
+        }
+        html += '<td class="' + cellClass + '">' + formatCurrency(row[field]) + '</td>';
+    }
+
+    // Job Code
+    html += '<td class="job-code">' + row.job_code;
+    if (row.isRequested) {
+        html += '<span class="requested-label">(REQUESTED)</span>';
+    }
+    html += '</td>';
+
+    html += '</tr>';
+}
+
+html += '</tbody></table>';
+
+if (existingLimits.length === 1) {
+    html += '<div class="note">⚠️ No existing authority limits found for job function <strong>' + (jobFunctionDescription || 'N/A') + '</strong>. Only the requested limits are shown above.</div>';
+}
+
+html += '</body></html>';
+
+return html;
