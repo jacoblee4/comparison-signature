@@ -1,155 +1,81 @@
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Started ==========
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job title = Administrative Assistant
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job function description = null
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Retrieving parent record...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job code record retrieved
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: No existing attachment found
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Getting document record...
-
-11-25-2025 15:34:18
+11-25-2025 15:40:50
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching credit limits...
 
-11-25-2025 15:34:18
+11-25-2025 15:40:50
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building requested limits object...
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Approval sys_id = f366fdb31bd93e14f5b0cbfa234bcbf8
-
-11-25-2025 15:34:18
+11-25-2025 15:40:50
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Is change request = false
 
-11-25-2025 15:34:18
+11-25-2025 15:40:50
 Warning	x_banun_bunow_si_0	SIGNATURE HELPER HTML: No job function description - will show requested limits only
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: sys_id type = string
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job title = Administrative Assistant
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Returned sys_id = cc7631f31bd93e14f5b0cbfa234bcb30
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job function description = null
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Attachment sys_id = cc7631f31bd93e14f5b0cbfa234bcb30
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job code record retrieved
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: sa.write completed
+11-25-2025 15:40:50
+Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Stack: at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:83 (executeRule)
+at sys_script.55ab517b1bddfa14f5b0cbfa234bcb45.script:118
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: HTML document created successfully!
+11-25-2025 15:40:50
+Error	x_banun_bunow_si_0	SIGNATURE HELPER BR: Exception: Cannot find function convertAttachmentToPDF in object [object PDFGenerationAPI].
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Content type: text/html
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Converting HTML to PDF...
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: GlideSysAttachment instantiated
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: HTML content built successfully, length = 3460
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Non-credit limits found
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent number = SIGR0001600
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: SignatureHelper instantiated
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Document table = x_banun_bunow_si_0_signature_request
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Filename: Authority_Limits_Comparison_SIGR0001600.html
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Creating attachment with filename: Authority_Limits_Comparison_SIGR0001600.html
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building HTML content...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent sys_id = 605631ff1b593e14f5b0cbfa234bcb30
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Instantiating SignatureHelper...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Document record retrieved
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Record: x_banun_bunow_si_0_signature_request:605631ff1b593e14f5b0cbfa234bcb30
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: HTML content generated, length = 3460
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Largest value = 345 in field disbursement_ach
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent job_code value = c79054071b474a10cd80ffbe034bcb74
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: _buildHTMLContent started
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Parent record retrieved: SIGR0001600
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Checking for existing attachments...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Content length: 3460
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Calling sa.write...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: _buildHTMLContent returned, checking content...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Finding largest requested value...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Getting job code...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Calling _buildHTMLContent...
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Parent sys_id (document is parent) = 605631ff1b593e14f5b0cbfa234bcb30
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Size: 3468 bytes
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: VERIFIED - Attachment found in database
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Table sys_id: 605631ff1b593e14f5b0cbfa234bcb30
-
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - Table: x_banun_bunow_si_0_signature_request
-
-11-25-2025 15:34:18
+11-25-2025 15:40:50
 Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Ended ==========
 
-11-25-2025 15:34:18
-Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: - File name: Authority_Limits_Comparison_SIGR0001600.html
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Temp HTML created: efe7717f1bd93e14f5b0cbfa234bcb7d
 
-11-25-2025 15:34:18
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Largest value = 234 in field disbursement_ach
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent job_code value = c79054071b474a10cd80ffbe034bcb74
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: HTML content generated, length = 3460
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Finding largest requested value...
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: HTML content built successfully, length = 3460
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Non-credit limits found
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Building HTML content...
+
+11-25-2025 15:40:50
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Fetching non-credit limits...
 
-11-25-2025 15:34:18
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent sys_id = 03d7757b1bd93e14f5b0cbfa234bcb8b
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: ========== Business Rule Started ==========
+
+11-25-2025 15:40:50
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Credit limits found
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: _buildHTMLContent started
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Getting job code...
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER BR: Generating PDF for SIGR0001601
+
+11-25-2025 15:40:50
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent number = SIGR0001601
