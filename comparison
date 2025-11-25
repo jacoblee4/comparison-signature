@@ -6,7 +6,6 @@
         var documentRecord = current.document_id.getRefRecord();
         
         if (!documentRecord || !documentRecord.isValidRecord()) {
-            gs.error('SIGNATURE HELPER BR: Document record invalid');
             return;
         }
 
@@ -56,56 +55,38 @@
         
         gs.info('SIGNATURE HELPER BR: HTML content generated, length = ' + htmlContent.length);
         
-        // Step 1: Create temporary HTML attachment
-        var tempFileName = 'temp_comparison_' + parentRec.number + '.html';
-        var sa = new GlideSysAttachment();
-        
-        var htmlAttachmentSysId = sa.write(
-            parentRec,
-            tempFileName,
-            'text/html',
-            htmlContent
-        );
-        
-        if (!htmlAttachmentSysId) {
-            gs.error('SIGNATURE HELPER BR: Failed to create temp HTML');
-            return;
-        }
-        
-        gs.info('SIGNATURE HELPER BR: Temp HTML created: ' + htmlAttachmentSysId);
-        
-        // Step 2: Convert HTML attachment to PDF using print-to-PDF
+        // Use PDFContentPusher to create PDF
         var pdfFileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
         
-        gs.info('SIGNATURE HELPER BR: Converting HTML to PDF...');
+        gs.info('SIGNATURE HELPER BR: Creating PDF using PDFContentPusher...');
         
-        var renderer = new sn_pdfgeneratorutils.PDFGenerationAPI();
-        var pdfAttachmentSysId = renderer.convertAttachmentToPDF(
-            htmlAttachmentSysId,
-            pdfFileName
-        );
+        var pusher = new sn_pdfgeneratorutils.PDFContentPusher();
+        pusher.setRecordSysID(parentRec.sys_id.toString());
+        pusher.setRecordTableName(parentRec.getTableName());
+        pusher.setFileName(pdfFileName);
+        pusher.setContent(htmlContent);
         
-        gs.info('SIGNATURE HELPER BR: PDF conversion result = ' + pdfAttachmentSysId);
+        gs.info('SIGNATURE HELPER BR: Calling createAndAttachPDF...');
+        var pdfSysId = pusher.createAndAttachPDF();
         
-        if (pdfAttachmentSysId) {
-            gs.info('SIGNATURE HELPER BR: PDF created successfully: ' + pdfAttachmentSysId);
-            
-            // Step 3: Delete the temporary HTML file
-            var tempHTML = new GlideRecord('sys_attachment');
-            if (tempHTML.get(htmlAttachmentSysId)) {
-                tempHTML.deleteRecord();
-                gs.info('SIGNATURE HELPER BR: Temp HTML deleted');
-            }
+        gs.info('SIGNATURE HELPER BR: createAndAttachPDF result = ' + pdfSysId);
+        gs.info('SIGNATURE HELPER BR: result type = ' + typeof pdfSysId);
+        
+        if (pdfSysId) {
+            gs.info('SIGNATURE HELPER BR: PDF created successfully!');
             
             // Verify PDF exists
             var verifyPDF = new GlideRecord('sys_attachment');
-            if (verifyPDF.get(pdfAttachmentSysId)) {
+            if (verifyPDF.get(pdfSysId)) {
                 gs.info('SIGNATURE HELPER BR: PDF VERIFIED');
                 gs.info('SIGNATURE HELPER BR: - File name: ' + verifyPDF.file_name);
                 gs.info('SIGNATURE HELPER BR: - Size: ' + verifyPDF.size_bytes + ' bytes');
+                gs.info('SIGNATURE HELPER BR: - Content type: ' + verifyPDF.content_type);
+            } else {
+                gs.error('SIGNATURE HELPER BR: Could not verify PDF attachment');
             }
         } else {
-            gs.error('SIGNATURE HELPER BR: PDF conversion failed');
+            gs.error('SIGNATURE HELPER BR: createAndAttachPDF returned null/empty');
         }
 
     } catch (e) {
