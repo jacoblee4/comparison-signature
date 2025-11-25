@@ -1,41 +1,40 @@
-// Generate PDF
+// Generate PDF using GlideSysAttachment approach
 try {
-    gs.info('SIGNATURE HELPER PDF: Instantiating PDFGenerationAPI...');
+    gs.info('SIGNATURE HELPER PDF: Creating PDF attachment...');
+    
+    // Create a temporary file name
+    var fileName = 'Authority_Limits_Comparison_' + parent.number + '.pdf';
+    
+    // Use GlideSysAttachment to create the PDF
+    var sa = new GlideSysAttachment();
+    
+    // Convert HTML to PDF and attach directly to the parent record
     var pdfGenerator = new sn_pdfgeneratorutils.PDFGenerationAPI();
+    var pdfBytes = pdfGenerator.convertToPDFBytes(htmlContent);
     
-    gs.info('SIGNATURE HELPER PDF: Calling convertToPDF...');
-    var pdfOutput = pdfGenerator.convertToPDF(htmlContent);
+    gs.info('SIGNATURE HELPER PDF: PDF bytes generated, creating attachment...');
     
-    gs.info('SIGNATURE HELPER PDF: convertToPDF completed, checking result...');
-    gs.info('SIGNATURE HELPER PDF: pdfOutput type = ' + typeof pdfOutput);
-    gs.info('SIGNATURE HELPER PDF: pdfOutput = ' + pdfOutput);
-
-    // The API returns the sys_id directly as a string, not an object
-    if (!pdfOutput || pdfOutput == '' || pdfOutput == 'null') {
-        gs.error('SIGNATURE HELPER PDF: Failed to create PDF - pdfOutput is empty');
+    if (!pdfBytes) {
+        gs.error('SIGNATURE HELPER PDF: Failed to generate PDF bytes');
         return null;
     }
-
-    var attachmentSysId = pdfOutput.toString();
-    gs.info('SIGNATURE HELPER PDF: PDF created with attachment sys_id = ' + attachmentSysId);
-
-    // Update the attachment to link it to the parent record with proper name
-    gs.info('SIGNATURE HELPER PDF: Updating attachment record...');
-    var attachmentGR = new GlideRecord('sys_attachment');
-    if (attachmentGR.get(attachmentSysId)) {
-        gs.info('SIGNATURE HELPER PDF: Attachment record found, updating fields...');
-        attachmentGR.table_name = 'x_banun_bunow_si_0_signature_request';
-        attachmentGR.table_sys_id = parent.sys_id.toString();
-        attachmentGR.file_name = 'Authority_Limits_Comparison_' + parent.number + '.pdf';
-        attachmentGR.update();
-
-        gs.info('SIGNATURE HELPER PDF: Successfully created and attached PDF');
-        gs.info('SIGNATURE HELPER PDF: Final file name = ' + attachmentGR.file_name);
-        return attachmentSysId;
-    } else {
-        gs.error('SIGNATURE HELPER PDF: Could not retrieve attachment record with sys_id: ' + attachmentSysId);
+    
+    // Write the PDF to the parent record
+    var attachmentSysId = sa.write(
+        parent,                                      // GlideRecord to attach to
+        fileName,                                    // File name
+        'application/pdf',                           // Content type
+        pdfBytes                                     // PDF content as bytes
+    );
+    
+    if (!attachmentSysId) {
+        gs.error('SIGNATURE HELPER PDF: Failed to create attachment');
+        return null;
     }
-
+    
+    gs.info('SIGNATURE HELPER PDF: Successfully created PDF attachment with sys_id = ' + attachmentSysId);
+    return attachmentSysId.toString();
+    
 } catch (e) {
     gs.error('SIGNATURE HELPER PDF: Exception during PDF generation: ' + e.message);
     gs.error('SIGNATURE HELPER PDF: Exception stack: ' + e.stack);
