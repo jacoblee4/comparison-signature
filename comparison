@@ -1,99 +1,257 @@
-(function executeRule(current, previous) {
+// ========================================================================
+// PDF GENERATION API TEST SCRIPT
+// Replace with your actual signature request sys_id
+// ========================================================================
+
+var testRecordSysId = 'YOUR_SIGNATURE_REQUEST_SYS_ID_HERE'; // REPLACE THIS
+
+gs.info('========================================');
+gs.info('PDF API TEST: Starting comprehensive test');
+gs.info('========================================');
+
+// Get the test record
+var testRecord = new GlideRecord('x_banun_bunow_si_0_signature_request');
+if (!testRecord.get(testRecordSysId)) {
+    gs.error('PDF API TEST: Could not find test record with sys_id: ' + testRecordSysId);
+    gs.error('PDF API TEST: Please update the testRecordSysId variable');
+} else {
+    gs.info('PDF API TEST: Test record found: ' + testRecord.number);
     
-    gs.info('SIGNATURE HELPER BR: ========== Business Rule Started ==========');
+    // Build HTML content
+    var helper = new x_banun_bunow_si_0.SignatureHelper();
+    var htmlContent = helper._buildHTMLContent(testRecord);
     
-    try {
-        var documentRecord = current.document_id.getRefRecord();
+    if (!htmlContent) {
+        gs.error('PDF API TEST: Failed to build HTML content');
+    } else {
+        gs.info('PDF API TEST: HTML content built successfully, length = ' + htmlContent.length);
         
-        if (!documentRecord || !documentRecord.isValidRecord()) {
-            return;
-        }
-
-        var parentSysId;
-        var documentTableName = documentRecord.getTableName();
-
-        if (documentTableName == 'x_banun_bunow_si_0_credit_authority_limits' || 
-            documentTableName == 'x_banun_bunow_si_0_non_credit_authority_limits') {
-            var parent = documentRecord.parent.getRefRecord();
-            if (!parent || !parent.isValidRecord()) {
-                return;
-            }
-            parentSysId = parent.sys_id.toString();
-        } else {
-            parentSysId = documentRecord.sys_id.toString();
-        }
-
-        // Check if PDF already exists
-        var existingPDF = new GlideRecord('sys_attachment');
-        existingPDF.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
-        existingPDF.addQuery('table_sys_id', parentSysId);
-        existingPDF.addQuery('file_name', 'CONTAINS', 'Authority_Limits_Comparison');
-        existingPDF.addQuery('file_name', 'ENDSWITH', '.pdf');
-        existingPDF.query();
-
-        if (existingPDF.hasNext()) {
-            gs.info('SIGNATURE HELPER BR: PDF already exists, skipping');
-            return;
-        }
-
-        // Get parent record
-        var parentRec = new GlideRecord('x_banun_bunow_si_0_signature_request');
-        if (!parentRec.get(parentSysId)) {
-            return;
-        }
+        var testResults = [];
         
-        gs.info('SIGNATURE HELPER BR: Generating PDF for ' + parentRec.number);
-
-        // Build HTML content
-        var helper = new x_banun_bunow_si_0.SignatureHelper();
-        var htmlContent = helper._buildHTMLContent(parentRec);
-        
-        if (!htmlContent) {
-            gs.warn('SIGNATURE HELPER BR: No HTML content generated');
-            return;
-        }
-        
-        gs.info('SIGNATURE HELPER BR: HTML content generated, length = ' + htmlContent.length);
-        
-        // Use PDFContentPusher to create PDF
-        var pdfFileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
-        
-        gs.info('SIGNATURE HELPER BR: Creating PDF using PDFContentPusher...');
-        
-        var pusher = new sn_pdfgeneratorutils.PDFContentPusher();
-        pusher.setRecordSysID(parentRec.sys_id.toString());
-        pusher.setRecordTableName(parentRec.getTableName());
-        pusher.setFileName(pdfFileName);
-        pusher.setContent(htmlContent);
-        
-        gs.info('SIGNATURE HELPER BR: Calling createAndAttachPDF...');
-        var pdfSysId = pusher.createAndAttachPDF();
-        
-        gs.info('SIGNATURE HELPER BR: createAndAttachPDF result = ' + pdfSysId);
-        gs.info('SIGNATURE HELPER BR: result type = ' + typeof pdfSysId);
-        
-        if (pdfSysId) {
-            gs.info('SIGNATURE HELPER BR: PDF created successfully!');
+        // ========================================================================
+        // METHOD 1: convertToPDF (4 parameters) - MOST COMMON
+        // ========================================================================
+        try {
+            gs.info('\n========================================');
+            gs.info('PDF API TEST: Testing Method 1 - convertToPDF (4 params)');
+            gs.info('========================================');
             
-            // Verify PDF exists
-            var verifyPDF = new GlideRecord('sys_attachment');
-            if (verifyPDF.get(pdfSysId)) {
-                gs.info('SIGNATURE HELPER BR: PDF VERIFIED');
-                gs.info('SIGNATURE HELPER BR: - File name: ' + verifyPDF.file_name);
-                gs.info('SIGNATURE HELPER BR: - Size: ' + verifyPDF.size_bytes + ' bytes');
-                gs.info('SIGNATURE HELPER BR: - Content type: ' + verifyPDF.content_type);
-            } else {
-                gs.error('SIGNATURE HELPER BR: Could not verify PDF attachment');
-            }
-        } else {
-            gs.error('SIGNATURE HELPER BR: createAndAttachPDF returned null/empty');
+            var pdf1 = new sn_pdfgeneratorutils.PDFGenerationAPI();
+            var result1 = pdf1.convertToPDF(
+                htmlContent,
+                testRecord.getTableName(),
+                testRecord.sys_id.toString(),
+                'TEST_Method1_' + testRecord.number + '.pdf'
+            );
+            
+            gs.info('PDF API TEST Method 1: Result type = ' + typeof result1);
+            gs.info('PDF API TEST Method 1: Result = ' + JSON.stringify(result1));
+            
+            testResults.push({
+                method: 'convertToPDF (4 params)',
+                status: result1 ? 'SUCCESS' : 'FAILED',
+                result: result1
+            });
+            
+        } catch (e) {
+            gs.error('PDF API TEST Method 1 EXCEPTION: ' + e.message);
+            testResults.push({
+                method: 'convertToPDF (4 params)',
+                status: 'EXCEPTION',
+                error: e.message
+            });
         }
-
-    } catch (e) {
-        gs.error('SIGNATURE HELPER BR: Exception: ' + e.message);
-        gs.error('SIGNATURE HELPER BR: Stack: ' + e.stack);
+        
+        // ========================================================================
+        // METHOD 2: convertToPDFWithHeaderFooter - WITH HEADER/FOOTER
+        // ========================================================================
+        try {
+            gs.info('\n========================================');
+            gs.info('PDF API TEST: Testing Method 2 - convertToPDFWithHeaderFooter');
+            gs.info('========================================');
+            
+            var hfInfo = {
+                "FooterText": "Authority Limits Comparison - " + testRecord.number,
+                "PageSize": "A4",
+                "GeneratePageNumber": "true",
+                "FooterTextAlignment": "BOTTOM_CENTER",
+                "TopOrBottomMargin": "36",
+                "LeftOrRightMargin": "24"
+            };
+            
+            var pdf2 = new sn_pdfgeneratorutils.PDFGenerationAPI();
+            var result2 = pdf2.convertToPDFWithHeaderFooter(
+                htmlContent,
+                testRecord.getTableName(),
+                testRecord.sys_id.toString(),
+                'TEST_Method2_' + testRecord.number + '.pdf',
+                hfInfo
+            );
+            
+            gs.info('PDF API TEST Method 2: Result type = ' + typeof result2);
+            gs.info('PDF API TEST Method 2: Result = ' + JSON.stringify(result2));
+            
+            testResults.push({
+                method: 'convertToPDFWithHeaderFooter',
+                status: result2 ? 'SUCCESS' : 'FAILED',
+                result: result2
+            });
+            
+        } catch (e) {
+            gs.error('PDF API TEST Method 2 EXCEPTION: ' + e.message);
+            testResults.push({
+                method: 'convertToPDFWithHeaderFooter',
+                status: 'EXCEPTION',
+                error: e.message
+            });
+        }
+        
+        // ========================================================================
+        // METHOD 3: convertToPDF with documentConfiguration - WITH LANDSCAPE
+        // ========================================================================
+        try {
+            gs.info('\n========================================');
+            gs.info('PDF API TEST: Testing Method 3 - convertToPDF with documentConfiguration');
+            gs.info('========================================');
+            
+            var docConfig = {
+                "PageSize": "A4",
+                "Orientation": "LANDSCAPE",
+                "TopOrBottomMargin": "36",
+                "LeftOrRightMargin": "24"
+            };
+            
+            var pdf3 = new sn_pdfgeneratorutils.PDFGenerationAPI();
+            var result3 = pdf3.convertToPDF(
+                htmlContent,
+                testRecord.getTableName(),
+                testRecord.sys_id.toString(),
+                'TEST_Method3_' + testRecord.number + '.pdf',
+                null, // fontFamilySysId
+                docConfig
+            );
+            
+            gs.info('PDF API TEST Method 3: Result type = ' + typeof result3);
+            gs.info('PDF API TEST Method 3: Result = ' + JSON.stringify(result3));
+            
+            testResults.push({
+                method: 'convertToPDF with documentConfiguration',
+                status: result3 ? 'SUCCESS' : 'FAILED',
+                result: result3
+            });
+            
+        } catch (e) {
+            gs.error('PDF API TEST Method 3 EXCEPTION: ' + e.message);
+            testResults.push({
+                method: 'convertToPDF with documentConfiguration',
+                status: 'EXCEPTION',
+                error: e.message
+            });
+        }
+        
+        // ========================================================================
+        // METHOD 4: PDFContentPusher
+        // ========================================================================
+        try {
+            gs.info('\n========================================');
+            gs.info('PDF API TEST: Testing Method 4 - PDFContentPusher');
+            gs.info('========================================');
+            
+            var pusher = new sn_pdfgeneratorutils.PDFContentPusher();
+            pusher.setRecordSysID(testRecord.sys_id.toString());
+            pusher.setRecordTableName(testRecord.getTableName());
+            pusher.setFileName('TEST_Method4_' + testRecord.number + '.pdf');
+            pusher.setContent(htmlContent);
+            
+            var result4 = pusher.createAndAttachPDF();
+            
+            gs.info('PDF API TEST Method 4: Result type = ' + typeof result4);
+            gs.info('PDF API TEST Method 4: Result = ' + result4);
+            
+            testResults.push({
+                method: 'PDFContentPusher',
+                status: result4 ? 'SUCCESS' : 'FAILED',
+                result: result4
+            });
+            
+        } catch (e) {
+            gs.error('PDF API TEST Method 4 EXCEPTION: ' + e.message);
+            testResults.push({
+                method: 'PDFContentPusher',
+                status: 'EXCEPTION',
+                error: e.message
+            });
+        }
+        
+        // ========================================================================
+        // METHOD 5: Document Generation API
+        // ========================================================================
+        try {
+            gs.info('\n========================================');
+            gs.info('PDF API TEST: Testing Method 5 - Document Generation API');
+            gs.info('========================================');
+            
+            // Note: This requires a template sys_id - replace if you have one
+            var templateSysId = 'YOUR_TEMPLATE_SYS_ID'; // You may not have this
+            
+            if (templateSysId != 'YOUR_TEMPLATE_SYS_ID') {
+                var result5 = new sn_doc.GenerateDocumentAPI().generateDocumentForTask(
+                    testRecord.sys_id.toString(),
+                    templateSysId,
+                    'TEST_Method5_' + testRecord.number + '.pdf'
+                );
+                
+                gs.info('PDF API TEST Method 5: Result = ' + result5);
+                
+                testResults.push({
+                    method: 'Document Generation API',
+                    status: result5 ? 'SUCCESS' : 'FAILED',
+                    result: result5
+                });
+            } else {
+                gs.warn('PDF API TEST Method 5: SKIPPED (no template sys_id provided)');
+                testResults.push({
+                    method: 'Document Generation API',
+                    status: 'SKIPPED',
+                    note: 'Requires template sys_id'
+                });
+            }
+            
+        } catch (e) {
+            gs.error('PDF API TEST Method 5 EXCEPTION: ' + e.message);
+            testResults.push({
+                method: 'Document Generation API',
+                status: 'EXCEPTION',
+                error: e.message
+            });
+        }
+        
+        // ========================================================================
+        // SUMMARY OF ALL TESTS
+        // ========================================================================
+        gs.info('\n========================================');
+        gs.info('PDF API TEST: SUMMARY OF ALL METHODS');
+        gs.info('========================================');
+        
+        for (var i = 0; i < testResults.length; i++) {
+            var test = testResults[i];
+            gs.info('Method: ' + test.method);
+            gs.info('  Status: ' + test.status);
+            if (test.result) {
+                gs.info('  Result: ' + JSON.stringify(test.result));
+            }
+            if (test.error) {
+                gs.info('  Error: ' + test.error);
+            }
+            if (test.note) {
+                gs.info('  Note: ' + test.note);
+            }
+            gs.info('---');
+        }
+        
+        gs.info('\n========================================');
+        gs.info('PDF API TEST: Check attachments on record ' + testRecord.number);
+        gs.info('PDF API TEST: Navigate to the record and look for TEST_Method*.pdf files');
+        gs.info('========================================');
     }
-    
-    gs.info('SIGNATURE HELPER BR: ========== Business Rule Ended ==========');
-
-})(current, previous);
+}
