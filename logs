@@ -1,71 +1,92 @@
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER PDF: Parent record retrieved: SIGR0001593
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent sys_id = 2859e5ff1b153e14f5b0cbfa234bcbb5
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Parent number = SIGR0001593
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Parent sys_id = 2859e5ff1b153e14f5b0cbfa234bcbb5
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Document table name = x_banun_bunow_si_0_signature_request
-
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Approval state = requested
-
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Parent sys_id = 3628a17b1b153e14f5b0cbfa234bcbf4
-
-11-25-2025 14:32:20
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: Document record retrieved successfully
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Approval sys_id = 8c48ed7b1b153e14f5b0cbfa234bcb04
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Approval sys_id = be7965f31b553e14f5b0cbfa234bcb59
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent job_code value = 9b9094071b474a10cd80ffbe034bcbe9
+
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: _buildHTMLContent started
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: Document is the PARENT record
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: Attempting to retrieve document record...
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: ========== PDF Generation Business Rule Started ==========
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Getting job code...
+
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER PDF: Starting HTML content generation...
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: Checking for existing PDF attachments...
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Document sys_id = 3628a17b1b153e14f5b0cbfa234bcbf4
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Document sys_id = 2859e5ff1b153e14f5b0cbfa234bcbb5
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: Approval source_table = x_banun_bunow_si_0_signature_request
 
-11-25-2025 14:32:20
-Error	x_banun_bunow_si_0	SIGNATURE HELPER PDF: No HTML content generated - _buildHTMLContent returned null
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Parent number = SIGR0001594
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Instantiating SignatureHelper...
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER PDF: Parent record retrieved: SIGR0001594
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Parent number = SIGR0001594
+
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Document table name = x_banun_bunow_si_0_signature_request
+
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Approval state = requested
+
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: ========== PDF Generation Business Rule Ended ==========
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER PDF: generateComparisonPDF called with parentSysId = 3628a17b1b153e14f5b0cbfa234bcbf4
+11-25-2025 14:37:42
+Error	x_banun_bunow_si_0	SIGNATURE HELPER PDF: No HTML content generated - _buildHTMLContent returned null
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER PDF: generateComparisonPDF called with parentSysId = 2859e5ff1b153e14f5b0cbfa234bcbb5
+
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: No existing PDF found, proceeding with generation...
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
+Error	x_banun_bunow_si_0	SIGNATURE HELPER HTML: No job function description found - returning null
+
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Calling generateComparisonPDF with parentSysId = 2859e5ff1b153e14f5b0cbfa234bcbb5
+
+11-25-2025 14:37:42
 Warning	x_banun_bunow_si_0	SIGNATURE HELPER: PDF generation returned NULL - check PDF Generation logs above
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: Calling generateComparisonPDF with parentSysId = 3628a17b1b153e14f5b0cbfa234bcbf4
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job function description = null
 
-11-25-2025 14:32:20
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: SignatureHelper instantiated successfully
+
+11-25-2025 14:37:42
 Information	x_banun_bunow_si_0	SIGNATURE HELPER: generateComparisonPDF returned: null
 
-11-25-2025 14:32:20
-Information	x_banun_bunow_si_0	SIGNATURE HELPER: SignatureHelper instantiated successfully
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER HTML: Job code record retrieved
+
+11-25-2025 14:37:42
+Information	x_banun_bunow_si_0	SIGNATURE HELPER: Instantiating SignatureHelper...
