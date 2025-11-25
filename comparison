@@ -1,40 +1,40 @@
-In the Template field, just put this simple placeholder:
-
-html<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
-<body>
-${current.number}
-</body>
-</html>
-
-Click Submit and copy the sys_id of the template
-
-Step 2: Use a Different Approach - Write HTML as Attachment Directly
-Since the Document Template API is giving us issues, let's write the HTML/PDF directly as an attachment. Update your Business Rule:
-javascript(function executeRule(current, previous) {
+(function executeRule(current, previous) {
+    
+    gs.info('SIGNATURE HELPER BR: ========== Business Rule Started ==========');
+    gs.info('SIGNATURE HELPER BR: Approval sys_id = ' + current.sys_id);
     
     try {
+        gs.info('SIGNATURE HELPER BR: Getting document record...');
         var documentRecord = current.document_id.getRefRecord();
+        
         if (!documentRecord || !documentRecord.isValidRecord()) {
+            gs.error('SIGNATURE HELPER BR: Document record invalid');
             return;
         }
+        
+        gs.info('SIGNATURE HELPER BR: Document record retrieved');
 
         var parentSysId;
         var documentTableName = documentRecord.getTableName();
+        gs.info('SIGNATURE HELPER BR: Document table = ' + documentTableName);
 
         if (documentTableName == 'x_banun_bunow_si_0_credit_authority_limits' || 
             documentTableName == 'x_banun_bunow_si_0_non_credit_authority_limits') {
+            gs.info('SIGNATURE HELPER BR: Document is child, getting parent...');
             var parent = documentRecord.parent.getRefRecord();
             if (!parent || !parent.isValidRecord()) {
+                gs.error('SIGNATURE HELPER BR: Parent record invalid');
                 return;
             }
             parentSysId = parent.sys_id.toString();
+            gs.info('SIGNATURE HELPER BR: Parent sys_id from child = ' + parentSysId);
         } else {
             parentSysId = documentRecord.sys_id.toString();
+            gs.info('SIGNATURE HELPER BR: Parent sys_id (document is parent) = ' + parentSysId);
         }
 
-        // Check if PDF already exists
+        // Check if HTML already exists
+        gs.info('SIGNATURE HELPER BR: Checking for existing attachments...');
         var existingPDF = new GlideRecord('sys_attachment');
         existingPDF.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
         existingPDF.addQuery('table_sys_id', parentSysId);
@@ -42,30 +42,50 @@ javascript(function executeRule(current, previous) {
         existingPDF.query();
 
         if (existingPDF.hasNext()) {
-            gs.info('PDF already exists, skipping');
+            gs.info('SIGNATURE HELPER BR: Attachment already exists, skipping');
             return;
         }
+        
+        gs.info('SIGNATURE HELPER BR: No existing attachment found');
 
         // Get parent record
+        gs.info('SIGNATURE HELPER BR: Retrieving parent record...');
         var parentRec = new GlideRecord('x_banun_bunow_si_0_signature_request');
         if (!parentRec.get(parentSysId)) {
+            gs.error('SIGNATURE HELPER BR: Could not retrieve parent record');
             return;
         }
-
-        gs.info('Generating comparison document for ' + parentRec.number);
         
-        // Build HTML content
+        gs.info('SIGNATURE HELPER BR: Parent record retrieved: ' + parentRec.number);
+
+        gs.info('SIGNATURE HELPER BR: Instantiating SignatureHelper...');
         var helper = new x_banun_bunow_si_0.SignatureHelper();
+        gs.info('SIGNATURE HELPER BR: SignatureHelper instantiated');
+        
+        gs.info('SIGNATURE HELPER BR: Calling _buildHTMLContent...');
         var htmlContent = helper._buildHTMLContent(parentRec);
         
+        gs.info('SIGNATURE HELPER BR: _buildHTMLContent returned, checking content...');
+        
         if (!htmlContent) {
-            gs.warn('No HTML content generated');
+            gs.warn('SIGNATURE HELPER BR: No HTML content generated (null/empty)');
             return;
         }
+        
+        gs.info('SIGNATURE HELPER BR: HTML content generated, length = ' + htmlContent.length);
         
         // Create attachment directly using GlideSysAttachment
         var fileName = 'Authority_Limits_Comparison_' + parentRec.number + '.html';
+        gs.info('SIGNATURE HELPER BR: Creating attachment with filename: ' + fileName);
+        
         var sa = new GlideSysAttachment();
+        gs.info('SIGNATURE HELPER BR: GlideSysAttachment instantiated');
+        
+        gs.info('SIGNATURE HELPER BR: Calling sa.write...');
+        gs.info('SIGNATURE HELPER BR: - Record: ' + parentRec.getTableName() + ':' + parentRec.sys_id);
+        gs.info('SIGNATURE HELPER BR: - Filename: ' + fileName);
+        gs.info('SIGNATURE HELPER BR: - Content type: text/html');
+        gs.info('SIGNATURE HELPER BR: - Content length: ' + htmlContent.length);
         
         var attachmentSysId = sa.write(
             parentRec,
@@ -74,24 +94,34 @@ javascript(function executeRule(current, previous) {
             htmlContent
         );
         
+        gs.info('SIGNATURE HELPER BR: sa.write completed');
+        gs.info('SIGNATURE HELPER BR: Returned sys_id = ' + attachmentSysId);
+        gs.info('SIGNATURE HELPER BR: sys_id type = ' + typeof attachmentSysId);
+        
         if (attachmentSysId) {
-            gs.info('HTML document created successfully: ' + attachmentSysId);
+            gs.info('SIGNATURE HELPER BR: HTML document created successfully!');
+            gs.info('SIGNATURE HELPER BR: Attachment sys_id = ' + attachmentSysId);
+            
+            // Verify it exists
+            var verifyAttach = new GlideRecord('sys_attachment');
+            if (verifyAttach.get(attachmentSysId)) {
+                gs.info('SIGNATURE HELPER BR: VERIFIED - Attachment found in database');
+                gs.info('SIGNATURE HELPER BR: - File name: ' + verifyAttach.file_name);
+                gs.info('SIGNATURE HELPER BR: - Table: ' + verifyAttach.table_name);
+                gs.info('SIGNATURE HELPER BR: - Table sys_id: ' + verifyAttach.table_sys_id);
+                gs.info('SIGNATURE HELPER BR: - Size: ' + verifyAttach.size_bytes + ' bytes');
+            } else {
+                gs.error('SIGNATURE HELPER BR: Could not verify attachment exists!');
+            }
         } else {
-            gs.error('Failed to create HTML attachment');
+            gs.error('SIGNATURE HELPER BR: Failed to create HTML attachment - sa.write returned null/empty');
         }
 
     } catch (e) {
-        gs.error('Document Generation Exception: ' + e.message);
-        gs.error('Stack: ' + e.stack);
+        gs.error('SIGNATURE HELPER BR: Exception occurred: ' + e.message);
+        gs.error('SIGNATURE HELPER BR: Exception stack: ' + e.stack);
     }
+    
+    gs.info('SIGNATURE HELPER BR: ========== Business Rule Ended ==========');
 
 })(current, previous);
-This will create an HTML attachment instead of a PDF. The HTML file will:
-
-Open in browsers perfectly
-Be printable to PDF by the user if needed
-Contain all your beautiful formatted tables
-Be attached to the email automatically
-
-The advantage: We bypass all the PDF generation issues and just create an HTML file directly, which is much simpler and more reliable.
-Test this and let me know if it creates the HTML attachment successfully!
