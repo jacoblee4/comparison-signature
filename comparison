@@ -1,204 +1,250 @@
-//BR
-
-(function executeRule(current, previous /*null when async*/) {
-    
-    gs.info('SIGNATURE HELPER: ========== PDF Generation Business Rule Started ==========');
-    gs.info('SIGNATURE HELPER: Approval sys_id = ' + current.sys_id);
-    gs.info('SIGNATURE HELPER: Approval state = ' + current.state);
-    gs.info('SIGNATURE HELPER: Approval source_table = ' + current.source_table);
-    
-    try {
-        // Get the document record (could be parent or child)
-        gs.info('SIGNATURE HELPER: Attempting to retrieve document record...');
-        var documentRecord = current.document_id.getRefRecord();
-        
-        if (!documentRecord || !documentRecord.isValidRecord()) {
-            gs.error('SIGNATURE HELPER: Unable to retrieve document record from sysapproval_approver');
-            gs.error('SIGNATURE HELPER: document_id value = ' + current.getValue('document_id'));
-            return;
-        }
-        
-        gs.info('SIGNATURE HELPER: Document record retrieved successfully');
-        
-        var documentTableName = documentRecord.getTableName();
-        gs.info('SIGNATURE HELPER: Document table name = ' + documentTableName);
-        gs.info('SIGNATURE HELPER: Document sys_id = ' + documentRecord.sys_id);
-        
-        var parentSysId;
-
-        // Determine if document is parent or child and get parent sys_id
-        if (documentTableName == 'x_banun_bunow_si_0_credit_authority_limits' || 
-            documentTableName == 'x_banun_bunow_si_0_non_credit_authority_limits') {
-            gs.info('SIGNATURE HELPER: Document is a CHILD record, retrieving parent...');
-            
-            // Document is child - get parent
-            var parent = documentRecord.parent.getRefRecord();
-            if (!parent || !parent.isValidRecord()) {
-                gs.error('SIGNATURE HELPER: Unable to retrieve parent from child record');
-                gs.error('SIGNATURE HELPER: Child parent field value = ' + documentRecord.getValue('parent'));
-                return;
-            }
-            parentSysId = parent.sys_id.toString();
-            gs.info('SIGNATURE HELPER: Parent retrieved from child successfully');
-            gs.info('SIGNATURE HELPER: Parent sys_id = ' + parentSysId);
-            gs.info('SIGNATURE HELPER: Parent number = ' + parent.number);
-            
-        } else if (documentTableName == 'x_banun_bunow_si_0_signature_request') {
-            gs.info('SIGNATURE HELPER: Document is the PARENT record');
-            // Document is parent
-            parentSysId = documentRecord.sys_id.toString();
-            gs.info('SIGNATURE HELPER: Parent sys_id = ' + parentSysId);
-            gs.info('SIGNATURE HELPER: Parent number = ' + documentRecord.number);
-        } else {
-            gs.error('SIGNATURE HELPER: Unexpected document table name: ' + documentTableName);
-            return;
-        }
-
-        // Check if PDF already exists for this request
-        gs.info('SIGNATURE HELPER: Checking for existing PDF attachments...');
-        var existingPDF = new GlideRecord('sys_attachment');
-        existingPDF.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
-        existingPDF.addQuery('table_sys_id', parentSysId);
-        existingPDF.addQuery('file_name', 'CONTAINS', 'Authority_Limits_Comparison');
-        existingPDF.query();
-
-        if (existingPDF.hasNext()) {
-            gs.info('SIGNATURE HELPER: PDF already exists for this request, skipping generation');
-            gs.info('SIGNATURE HELPER: Existing PDF file name = ' + existingPDF.file_name);
-            return;
-        }
-        
-        gs.info('SIGNATURE HELPER: No existing PDF found, proceeding with generation...');
-
-        // Generate the PDF
-        gs.info('SIGNATURE HELPER: Instantiating SignatureHelper...');
-        var pdfGen = new x_banun_bunow_si_0.SignatureHelper();
-        gs.info('SIGNATURE HELPER: SignatureHelper instantiated successfully');
-        
-        gs.info('SIGNATURE HELPER: Calling generateComparisonPDF with parentSysId = ' + parentSysId);
-        var attachmentSysId = pdfGen.generateComparisonPDF(parentSysId);
-        
-        gs.info('SIGNATURE HELPER: generateComparisonPDF returned: ' + attachmentSysId);
-
-        if (attachmentSysId) {
-            gs.info('SIGNATURE HELPER: PDF generation SUCCESS! Attachment sys_id = ' + attachmentSysId);
-            
-            // Verify the attachment was created
-            var verifyAttachment = new GlideRecord('sys_attachment');
-            if (verifyAttachment.get(attachmentSysId)) {
-                gs.info('SIGNATURE HELPER: Verified attachment exists:');
-                gs.info('SIGNATURE HELPER:   - File name: ' + verifyAttachment.file_name);
-                gs.info('SIGNATURE HELPER:   - Table name: ' + verifyAttachment.table_name);
-                gs.info('SIGNATURE HELPER:   - Table sys_id: ' + verifyAttachment.table_sys_id);
-                gs.info('SIGNATURE HELPER:   - File size: ' + verifyAttachment.size_bytes + ' bytes');
-            } else {
-                gs.error('SIGNATURE HELPER: Attachment sys_id returned but cannot retrieve attachment record!');
-            }
-        } else {
-            gs.warn('SIGNATURE HELPER: PDF generation returned NULL - check PDF Generation logs above');
-        }
-
-    } catch (e) {
-        gs.error('SIGNATURE HELPER: Business Rule Exception: ' + e.message);
-        gs.error('SIGNATURE HELPER: Exception stack trace: ' + e.stack);
-    }
-    
-    gs.info('SIGNATURE HELPER: ========== PDF Generation Business Rule Ended ==========');
-
-})(current, previous);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Script include
-generateComparisonPDF: function(parentSysId) {
-    gs.info('SIGNATURE HELPER PDF: generateComparisonPDF called with parentSysId = ' + parentSysId);
-    
-    var parent = new GlideRecord('x_banun_bunow_si_0_signature_request');
-    if (!parent.get(parentSysId)) {
-        gs.error('SIGNATURE HELPER PDF: Unable to retrieve parent record with sys_id: ' + parentSysId);
-        return null;
-    }
-
-    gs.info('SIGNATURE HELPER PDF: Parent record retrieved: ' + parent.number);
-    gs.info('SIGNATURE HELPER PDF: Starting HTML content generation...');
-
-    // Build the HTML content
-    var htmlContent = this._buildHTMLContent(parent);
-
-    if (!htmlContent) {
-        gs.error('SIGNATURE HELPER PDF: No HTML content generated - _buildHTMLContent returned null');
-        return null;
-    }
-    
-    gs.info('SIGNATURE HELPER PDF: HTML content generated successfully, length = ' + htmlContent.length + ' characters');
-
-    // Generate PDF
-    try {
-        gs.info('SIGNATURE HELPER PDF: Instantiating PDFGenerationAPI...');
-        var pdfGenerator = new sn_pdfgeneratorutils.PDFGenerationAPI();
-        
-        gs.info('SIGNATURE HELPER PDF: Calling convertToPDF...');
-        var pdfOutput = pdfGenerator.convertToPDF(htmlContent);
-        
-        gs.info('SIGNATURE HELPER PDF: convertToPDF completed, checking result...');
-
-        if (!pdfOutput || !pdfOutput.getSysId()) {
-            gs.error('SIGNATURE HELPER PDF: Failed to create PDF - pdfOutput is null or has no sys_id');
-            gs.error('SIGNATURE HELPER PDF: pdfOutput = ' + pdfOutput);
-            return null;
-        }
-
-        var attachmentSysId = pdfOutput.getSysId();
-        gs.info('SIGNATURE HELPER PDF: PDF created with attachment sys_id = ' + attachmentSysId);
-
-        // Update the attachment to link it to the parent record with proper name
-        gs.info('SIGNATURE HELPER PDF: Updating attachment record...');
-        var attachmentGR = new GlideRecord('sys_attachment');
-        if (attachmentGR.get(attachmentSysId)) {
-            gs.info('SIGNATURE HELPER PDF: Attachment record found, updating fields...');
-            attachmentGR.table_name = 'x_banun_bunow_si_0_signature_request';
-            attachmentGR.table_sys_id = parent.sys_id.toString();
-            attachmentGR.file_name = 'Authority_Limits_Comparison_' + parent.number + '.pdf';
-            attachmentGR.update();
-
-            gs.info('SIGNATURE HELPER PDF: Successfully created and attached PDF');
-            gs.info('SIGNATURE HELPER PDF: Final file name = ' + attachmentGR.file_name);
-            return attachmentSysId;
-        } else {
-            gs.error('SIGNATURE HELPER PDF: Could not retrieve attachment record with sys_id: ' + attachmentSysId);
-        }
-
-    } catch (e) {
-        gs.error('SIGNATURE HELPER PDF: Exception during PDF generation: ' + e.message);
-        gs.error('SIGNATURE HELPER PDF: Exception stack: ' + e.stack);
-        return null;
-    }
-
-    gs.error('SIGNATURE HELPER PDF: Reached end of function without returning - this should not happen');
-    return null;
-},
-
 _buildHTMLContent: function(parent) {
     gs.info('SIGNATURE HELPER HTML: _buildHTMLContent started');
+    gs.info('SIGNATURE HELPER HTML: Parent sys_id = ' + parent.sys_id);
+    gs.info('SIGNATURE HELPER HTML: Parent number = ' + parent.number);
     
     // Function to get value or return 0
     function safeGetValue(glideRecord, fieldName) {
         var value = glideRecord.getValue(fieldName);
         return parseFloat(value) || 0;
     }
+
+    // Function to format currency
+    function formatCurrency(value) {
+        if (!value || value === 0) return '-';
+        return '$' + parseFloat(value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Get the job function description from the requested job code
+    gs.info('SIGNATURE HELPER HTML: Getting job code...');
+    gs.info('SIGNATURE HELPER HTML: Parent job_code value = ' + parent.getValue('job_code'));
     
-    // ... rest of your code
+    var jobCodeGr = new GlideRecord('x_banun_rbac_job_code');
+    if (!jobCodeGr.get(parent.getValue('job_code'))) {
+        gs.error('SIGNATURE HELPER HTML: Failed to retrieve job code record');
+        return null;
+    }
+    
+    gs.info('SIGNATURE HELPER HTML: Job code record retrieved');
+
+    var jobFunctionDescription = jobCodeGr.getValue('job_function_description') ||
+        jobCodeGr.getValue('u_job_function_description') ||
+        jobCodeGr.getValue('job_function');
+    
+    gs.info('SIGNATURE HELPER HTML: Job function description = ' + jobFunctionDescription);
+
+    if (!jobFunctionDescription) {
+        gs.error('SIGNATURE HELPER HTML: No job function description found - returning null');
+        return null;
+    }
+
+    // Get all job codes with matching job function description
+    gs.info('SIGNATURE HELPER HTML: Querying for matching job codes...');
+    var jobCodesList = [];
+    var jobCodesGr = new GlideRecord('x_banun_rbac_job_code');
+    jobCodesGr.addQuery('job_function_description', jobFunctionDescription);
+    jobCodesGr.query();
+
+    while (jobCodesGr.next()) {
+        jobCodesList.push(jobCodesGr.sys_id.toString());
+    }
+    
+    gs.info('SIGNATURE HELPER HTML: Found ' + jobCodesList.length + ' matching job codes');
+
+    if (jobCodesList.length === 0) {
+        gs.error('SIGNATURE HELPER HTML: No matching job codes found - returning null');
+        return null;
+    }
+
+    // Get the requested limits
+    gs.info('SIGNATURE HELPER HTML: Building requested limits object...');
+    var requestedLimits = {
+        job_code: parent.job_code.getDisplayValue(),
+        job_code_sys_id: parent.getValue('job_code'),
+        sys_id: 'REQUESTED',
+        isRequested: true
+    };
+
+    // Get job title
+    var requestedJobCodeGr = new GlideRecord('x_banun_rbac_job_code');
+    if (requestedJobCodeGr.get(parent.getValue('job_code'))) {
+        requestedLimits.job_title = requestedJobCodeGr.getValue('job_description') || '';
+        gs.info('SIGNATURE HELPER HTML: Job title = ' + requestedLimits.job_title);
+    }
+
+    // Determine if this is a change request
+    var isChangeRequest = (parent.request_type == 'change_to_existing_authority');
+    gs.info('SIGNATURE HELPER HTML: Is change request = ' + isChangeRequest);
+
+    // Fetch credit limits
+    gs.info('SIGNATURE HELPER HTML: Fetching credit limits...');
+    var creditGr = new GlideRecord('x_banun_bunow_si_0_credit_authority_limits');
+    creditGr.addQuery('parent', parent.sys_id);
+    creditGr.query();
+
+    if (creditGr.next()) {
+        gs.info('SIGNATURE HELPER HTML: Credit limits found');
+        requestedLimits.overdraft_internal = safeGetValue(creditGr, 'overdraft_internal_accounts');
+        requestedLimits.overdraft_external = safeGetValue(creditGr, 'overdraft_external_accounts');
+        requestedLimits.unavailable_internal = safeGetValue(creditGr, 'unavailable_funds_internal_accounts');
+        requestedLimits.unavailable_external = safeGetValue(creditGr, 'unavailable_funds_external_accounts');
+
+        if (isChangeRequest) {
+            requestedLimits.original_overdraft_internal = safeGetValue(creditGr, 'original_overdraft_internal_accounts');
+            requestedLimits.original_overdraft_external = safeGetValue(creditGr, 'original_overdraft_external_accounts');
+            requestedLimits.original_unavailable_internal = safeGetValue(creditGr, 'original_unavailable_funds_internal_accounts');
+            requestedLimits.original_unavailable_external = safeGetValue(creditGr, 'original_unavailable_funds_external_accounts');
+        }
+    } else {
+        gs.info('SIGNATURE HELPER HTML: No credit limits found');
+    }
+
+    // Fetch non-credit limits
+    gs.info('SIGNATURE HELPER HTML: Fetching non-credit limits...');
+    var nonCreditGr = new GlideRecord('x_banun_bunow_si_0_non_credit_authority_limits');
+    nonCreditGr.addQuery('parent', parent.sys_id);
+    nonCreditGr.query();
+
+    if (nonCreditGr.next()) {
+        gs.info('SIGNATURE HELPER HTML: Non-credit limits found');
+        requestedLimits.disbursement_ach = safeGetValue(nonCreditGr, 'disbursement_ach');
+        requestedLimits.wire_internal = safeGetValue(nonCreditGr, 'disbursement_wire_transfer_internal');
+        requestedLimits.wire_external = safeGetValue(nonCreditGr, 'disbursement_wire_transfer_external');
+        requestedLimits.checks_internal = safeGetValue(nonCreditGr, 'disbursement_official_checks_internal');
+        requestedLimits.checks_external = safeGetValue(nonCreditGr, 'disbursement_official_checks_external');
+        requestedLimits.check_cashing_on_us = safeGetValue(nonCreditGr, 'check_cashing_on_us');
+        requestedLimits.check_cashing_not_on_us = safeGetValue(nonCreditGr, 'check_cashing_not_on_us');
+        requestedLimits.remote_deposit = safeGetValue(nonCreditGr, 'remote_deposit');
+        requestedLimits.treasury_wire = safeGetValue(nonCreditGr, 'treasury_solutions_company_wire_limits');
+        requestedLimits.fx_wire = safeGetValue(nonCreditGr, 'fx_wire_limits');
+
+        if (isChangeRequest) {
+            requestedLimits.original_disbursement_ach = safeGetValue(nonCreditGr, 'original_disbursement_ach');
+            requestedLimits.original_wire_internal = safeGetValue(nonCreditGr, 'original_disbursement_wire_transfer_internal');
+            requestedLimits.original_wire_external = safeGetValue(nonCreditGr, 'original_disbursement_wire_transfer_external');
+            requestedLimits.original_checks_internal = safeGetValue(nonCreditGr, 'original_disbursement_official_checks_internal');
+            requestedLimits.original_checks_external = safeGetValue(nonCreditGr, 'original_disbursement_official_checks_external');
+            requestedLimits.original_check_cashing_on_us = safeGetValue(nonCreditGr, 'original_check_cashing_on_us');
+            requestedLimits.original_check_cashing_not_on_us = safeGetValue(nonCreditGr, 'original_check_cashing_not_on_us');
+            requestedLimits.original_remote_deposit = safeGetValue(nonCreditGr, 'original_remote_deposit');
+            requestedLimits.original_treasury_wire = safeGetValue(nonCreditGr, 'original_treasury_solutions_company_wire_limits');
+            requestedLimits.original_fx_wire = safeGetValue(nonCreditGr, 'original_fx_wire_limits');
+        }
+    } else {
+        gs.info('SIGNATURE HELPER HTML: No non-credit limits found');
+    }
+
+    // Define all limit fields
+    var limitFields = [
+        'disbursement_ach',
+        'wire_internal',
+        'wire_external',
+        'checks_internal',
+        'checks_external',
+        'check_cashing_on_us',
+        'check_cashing_not_on_us',
+        'remote_deposit',
+        'treasury_wire',
+        'fx_wire',
+        'overdraft_internal',
+        'overdraft_external',
+        'unavailable_internal',
+        'unavailable_external'
+    ];
+
+    // Find the largest requested value
+    gs.info('SIGNATURE HELPER HTML: Finding largest requested value...');
+    var largestValue = 0;
+    var largestField = '';
+
+    for (var i = 0; i < limitFields.length; i++) {
+        var fieldName = limitFields[i];
+        var value = requestedLimits[fieldName] || 0;
+        if (value > largestValue) {
+            largestValue = value;
+            largestField = fieldName;
+        }
+    }
+    
+    gs.info('SIGNATURE HELPER HTML: Largest value = ' + largestValue + ' in field ' + largestField);
+
+    if (largestValue === 0) {
+        gs.error('SIGNATURE HELPER HTML: No authority limits specified (largestValue = 0) - returning null');
+        return null;
+    }
+
+    // Get existing authority limits
+    gs.info('SIGNATURE HELPER HTML: Fetching existing authority limits...');
+    var existingLimits = [];
+
+    for (var j = 0; j < jobCodesList.length; j++) {
+        var limitGr = new GlideRecord('x_banun_bunow_si_0_authority_limits');
+        limitGr.addQuery('job_code', jobCodesList[j]);
+        limitGr.query();
+
+        while (limitGr.next()) {
+            var limit = {
+                job_code: limitGr.job_code.getDisplayValue(),
+                job_code_sys_id: limitGr.getValue('job_code'),
+                sys_id: limitGr.sys_id.toString(),
+                isRequested: false
+            };
+
+            var jobCodeGr2 = new GlideRecord('x_banun_rbac_job_code');
+            if (jobCodeGr2.get(limitGr.getValue('job_code'))) {
+                limit.job_title = jobCodeGr2.getValue('job_description') || '';
+            }
+
+            limit.disbursement_ach = safeGetValue(limitGr, 'disbursement_ach');
+            limit.wire_internal = safeGetValue(limitGr, 'disbursement_wire_transfer_internal');
+            limit.wire_external = safeGetValue(limitGr, 'disbursement_wire_transfer_external');
+            limit.checks_internal = safeGetValue(limitGr, 'disbursement_official_checks_internal');
+            limit.checks_external = safeGetValue(limitGr, 'disbursement_official_checks_external');
+            limit.check_cashing_on_us = safeGetValue(limitGr, 'check_cashing_on_us');
+            limit.check_cashing_not_on_us = safeGetValue(limitGr, 'check_cashing_not_on_us');
+            limit.remote_deposit = safeGetValue(limitGr, 'remote_deposit');
+            limit.treasury_wire = safeGetValue(limitGr, 'treasury_solutions_company_wire_limits');
+            limit.fx_wire = safeGetValue(limitGr, 'fx_wire_limits');
+            limit.overdraft_internal = safeGetValue(limitGr, 'overdraft_internal_accounts');
+            limit.overdraft_external = safeGetValue(limitGr, 'overdraft_external_accounts');
+            limit.unavailable_internal = safeGetValue(limitGr, 'unavailable_funds_internal_accounts');
+            limit.unavailable_external = safeGetValue(limitGr, 'unavailable_funds_external_accounts');
+
+            existingLimits.push(limit);
+        }
+    }
+    
+    gs.info('SIGNATURE HELPER HTML: Found ' + existingLimits.length + ' existing authority limits');
+
+    existingLimits.push(requestedLimits);
+
+    // Sort by largest field value
+    existingLimits.sort(function(a, b) {
+        var aVal = a[largestField] || 0;
+        var bVal = b[largestField] || 0;
+        return bVal - aVal;
+    });
+
+    // Function to determine if field should be highlighted
+    function shouldHighlight(row, fieldName) {
+        if (!row.isRequested) return false;
+
+        var newValue = row[fieldName] || 0;
+
+        if (isChangeRequest) {
+            var originalValue = row['original_' + fieldName] || 0;
+            return newValue !== originalValue;
+        } else {
+            return newValue > 0;
+        }
+    }
+
+    // Build HTML with PDF-optimized styling
+    gs.info('SIGNATURE HELPER HTML: Building HTML content...');
+    var html = '<!DOCTYPE html><html><head>';
+    
+    // ... rest of your HTML building code ...
+    
+    gs.info('SIGNATURE HELPER HTML: HTML content built successfully, length = ' + html.length);
+    return html;
+},
