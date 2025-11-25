@@ -1,117 +1,17 @@
-Step 1: Create an HTML Document Template
+In the Template field, just put this simple placeholder:
 
-Navigate to System Policy > Document Templates
-Click New
-Fill in:
-
-Name: Authority Limits Comparison
-Table: Signature Authority Request (x_banun_bunow_si_0_signature_request)
-Type: HTML
-Template: (We'll build this in a moment)
-
-
-
-Step 2: Build the HTML Template
-In the Template field, paste this:
 html<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 15px; font-size: 9px; }
-        h2 { color: #00aae3; margin-bottom: 5px; font-size: 14px; }
-        h3 { color: #000000; margin: 10px 0 5px 0; font-size: 12px; border-bottom: 2px solid #00aae3; padding-bottom: 5px; }
-        .info { margin: 10px 0; font-size: 9px; }
-        .info-label { font-weight: bold; display: inline-block; width: 120px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; page-break-inside: auto; }
-        tr { page-break-inside: avoid; page-break-after: auto; }
-        th { background-color: #EBF1DE; color: #000000; padding: 6px 4px; text-align: center; font-weight: 600; border: 1px solid #000; font-size: 7px; line-height: 1.2; }
-        th.category { background-color: #00aae3; color: #ffffff; font-weight: 700; font-size: 8px; }
-        th.group { background-color: #C5D9F1; color: #000000; font-weight: 600; font-size: 7px; }
-        td { padding: 4px; text-align: right; border: 1px solid #ddd; font-size: 8px; color: #5a6c7d; }
-        td.job-title { text-align: left; font-weight: 600; background-color: #EBF1DE; }
-        td.job-code { text-align: center; font-weight: 500; background-color: #EBF1DE; }
-        .requested-row { background-color: #fff3cd; }
-        .requested-row td.job-title, .requested-row td.job-code { background-color: #FFFF99; font-weight: 700; }
-        .highlight { background-color: #FFFF99; font-weight: bold; color: #000000; }
-        .requested-label { color: #FF0000; font-size: 7px; font-weight: 700; display: block; margin-top: 2px; }
-        .note { background-color: #fff3cd; padding: 8px; margin-top: 10px; border: 1px solid #ffc107; border-radius: 4px; font-size: 8px; }
-    </style>
-</head>
+<head><meta charset="UTF-8"></head>
 <body>
-    ${custom_content}
+${current.number}
 </body>
 </html>
-Save the template and note its sys_id.
-Step 3: Update Your Script Include
-Add this method to your SignatureHelper Script Include:
-javascriptgenerateComparisonPDFWithTemplate: function(parentSysId) {
-    gs.info('SIGNATURE HELPER TEMPLATE: Starting PDF generation for ' + parentSysId);
-    
-    var parent = new GlideRecord('x_banun_bunow_si_0_signature_request');
-    if (!parent.get(parentSysId)) {
-        gs.error('SIGNATURE HELPER TEMPLATE: Unable to retrieve parent record');
-        return null;
-    }
-    
-    gs.info('SIGNATURE HELPER TEMPLATE: Building HTML content...');
-    var customContent = this._buildComparisonHTML(parent);
-    
-    if (!customContent) {
-        gs.error('SIGNATURE HELPER TEMPLATE: No HTML content generated');
-        return null;
-    }
-    
-    try {
-        // Set the custom content as a temporary field value for the template
-        parent.setValue('u_temp_custom_content', customContent); // You may need to create this field or use a different approach
-        
-        var fileName = 'Authority_Limits_Comparison_' + parent.number + '.pdf';
-        var templateSysId = 'YOUR_TEMPLATE_SYS_ID_HERE'; // Replace with actual template sys_id
-        
-        gs.info('SIGNATURE HELPER TEMPLATE: Generating document with template...');
-        var result = new sn_doc.GenerateDocumentAPI().generateDocumentForTask(
-            parentSysId,
-            templateSysId,
-            fileName
-        );
-        
-        gs.info('SIGNATURE HELPER TEMPLATE: Document generation complete, result = ' + result);
-        
-        // Find the newly created attachment
-        var attachmentGR = new GlideRecord('sys_attachment');
-        attachmentGR.addQuery('table_name', 'x_banun_bunow_si_0_signature_request');
-        attachmentGR.addQuery('table_sys_id', parentSysId);
-        attachmentGR.addQuery('file_name', fileName);
-        attachmentGR.orderByDesc('sys_created_on');
-        attachmentGR.setLimit(1);
-        attachmentGR.query();
-        
-        if (attachmentGR.next()) {
-            gs.info('SIGNATURE HELPER TEMPLATE: PDF created successfully, sys_id = ' + attachmentGR.sys_id);
-            return attachmentGR.sys_id.toString();
-        } else {
-            gs.error('SIGNATURE HELPER TEMPLATE: Could not find created PDF attachment');
-            return null;
-        }
-        
-    } catch (e) {
-        gs.error('SIGNATURE HELPER TEMPLATE: Exception: ' + e.message);
-        return null;
-    }
-},
 
-_buildComparisonHTML: function(parent) {
-    // This is a simplified version that just builds the table content
-    // (without the full HTML wrapper since the template provides that)
-    
-    // ... (Use most of your existing _buildHTMLContent logic but return only the content that goes in ${custom_content})
-    // Return just the header info + table, not the full HTML document
-}
-However, there's a simpler approach - let's use a Mail Script-style approach where we build the entire HTML in the Script Include and use the basic Document Template:
-SIMPLER ALTERNATIVE: Use your existing HTML building code
-Actually, let me give you the easiest solution using what already works:
-Update Your Business Rule to use Document Generation:
+Click Submit and copy the sys_id of the template
+
+Step 2: Use a Different Approach - Write HTML as Attachment Directly
+Since the Document Template API is giving us issues, let's write the HTML/PDF directly as an attachment. Update your Business Rule:
 javascript(function executeRule(current, previous) {
     
     try {
@@ -142,6 +42,7 @@ javascript(function executeRule(current, previous) {
         existingPDF.query();
 
         if (existingPDF.hasNext()) {
+            gs.info('PDF already exists, skipping');
             return;
         }
 
@@ -151,22 +52,46 @@ javascript(function executeRule(current, previous) {
             return;
         }
 
-        // Generate using Document Template
-        var fileName = 'Authority_Limits_Comparison_' + parentRec.number + '.pdf';
-        var templateSysId = 'YOUR_TEMPLATE_SYS_ID'; // Replace with your template sys_id
+        gs.info('Generating comparison document for ' + parentRec.number);
         
-        new sn_doc.GenerateDocumentAPI().generateDocumentForTask(
-            parentSysId,
-            templateSysId,
-            fileName
+        // Build HTML content
+        var helper = new x_banun_bunow_si_0.SignatureHelper();
+        var htmlContent = helper._buildHTMLContent(parentRec);
+        
+        if (!htmlContent) {
+            gs.warn('No HTML content generated');
+            return;
+        }
+        
+        // Create attachment directly using GlideSysAttachment
+        var fileName = 'Authority_Limits_Comparison_' + parentRec.number + '.html';
+        var sa = new GlideSysAttachment();
+        
+        var attachmentSysId = sa.write(
+            parentRec,
+            fileName,
+            'text/html',
+            htmlContent
         );
         
-        gs.info('PDF generated successfully for ' + parentRec.number);
+        if (attachmentSysId) {
+            gs.info('HTML document created successfully: ' + attachmentSysId);
+        } else {
+            gs.error('Failed to create HTML attachment');
+        }
 
     } catch (e) {
-        gs.error('PDF Generation Exception: ' + e.message);
+        gs.error('Document Generation Exception: ' + e.message);
+        gs.error('Stack: ' + e.stack);
     }
 
 })(current, previous);
-BUT - the challenge is that Document Templates need the data in the template itself. Let me know if you want to pursue this route and I'll help you build the proper template with embedded scripting to pull all the comparison data.
-Or would you prefer to keep trying with the PDF Generator API? I have one more idea for that...
+This will create an HTML attachment instead of a PDF. The HTML file will:
+
+Open in browsers perfectly
+Be printable to PDF by the user if needed
+Contain all your beautiful formatted tables
+Be attached to the email automatically
+
+The advantage: We bypass all the PDF generation issues and just create an HTML file directly, which is much simpler and more reliable.
+Test this and let me know if it creates the HTML attachment successfully!
